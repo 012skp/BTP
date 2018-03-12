@@ -1,0 +1,6 @@
+Last sem presented theory, the working of load-balancer.
+Improvement in load-balancer's load collection process using queue for each Packet.
+Improvement in switch migration to a low-load controller by taking into consideration RTT to the target controller.
+Modification of POX controller to act ovs-switch like a leaning switch and small firewall.
+Currently into the implementation of load-balancer on floodlight, learning REST APIs to write the module.
+

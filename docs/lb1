@@ -1,0 +1,19 @@
+DALB Load Balancing
+#####################
+
+Problems
+############
+
+1. Load Collection (which is done when load increases thresh-hold) causes latency in load transfer.
+=> Load Informative Strategy Paper2.
+
+
+2. Large Number of Load Collection under heavy-load condition on whole network.
+   Almost half of the controllers will be doing load collections always.
+   
+
+3. Suffling of switch-contorller links after long-running of controller.
+=> Taking into consideration RTT done in Paper2.
+
+4. Controller load threshhold doesn't go down automatically.
+=> Do load collection whenever Currentload-Threshhold > some constant.

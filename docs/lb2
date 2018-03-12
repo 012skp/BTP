@@ -1,0 +1,6 @@
+Informative Strategy Load Balancing
+#######################################
+
+1. RTT from switch to slave controllers ???
+2. Will work very bad under high load condition, how load-informative will work?, switch selection criteria?.
+3. Have been simulated only for low load in network.

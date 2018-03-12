@@ -1,0 +1,7 @@
+ovs-vsctl del-br mybridge
+ovs-vsctl add-br mybridge
+ifconfig mybridge up
+ifconfig enp8s0 0
+ovs-vsctl add-port mybridge enp8s0
+dhclient mybridge
+ping -c3 google.com
