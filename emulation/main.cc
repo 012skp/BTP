@@ -11,7 +11,6 @@ int main(){
   Switch s0;
   Controller c0;
 
-  string linkname = "l0";
 
 
   l0.src = "s0";
@@ -21,15 +20,15 @@ int main(){
   switches.push_back(s0);
   controllers.push_back(c0);
 
-  thread th1(thread_link, linkname);
+  thread th1(thread_link, 0);
   // random packet generator..
   for(int i=0;i>-10;i++){
     Packet p;
-    p.packet_id = i;
+    p.packetid = i;
     p.src = "s0";
     p.dst = "c0";
     links[0].q.push(p);
-    usleep(0);
+    usleep(500000);
 
   }
   th1.join();

@@ -1,4 +1,8 @@
-// Links code
+/*Link's code
+  This is code of half duplex link.
+  Need to have two such links to work as full duplex.
+*/
+
 #include<bits/stdc++.h>
 #ifndef __CORE_H__
 #include "core.h"
@@ -7,9 +11,7 @@ using namespace std;
 
 
 
-void thread_link(string linkname){
-  int linkid = getid(linkname);
-  printf("RUNNING LINK THREAD %s\n",linkname.c_str());
+void thread_link(int  linkid){
   Link &mylink = links[linkid]; // get the link info from global database;
 
   // get destination queue as 'dq'
@@ -18,11 +20,11 @@ void thread_link(string linkname){
   // If special link, dst is a controller else switch.
   if(mylink.special){
     dq = &controllers[getid(mylink.dst)].q;
-    dq_max_size = controllers[getid(mylink.dst)].queue_size;
+    dq_max_size = controllers[getid(mylink.dst)].max_queue_size;
   }
   else{
     dq = &switches[getid(mylink.dst)].q;
-    dq_max_size = switches[getid(mylink.dst)].queue_size;
+    dq_max_size = switches[getid(mylink.dst)].max_queue_size;
   }
 
   printf("mylink src = %s and dst = %s\n",mylink.src.c_str(),mylink.dst.c_str());
