@@ -12,47 +12,94 @@ using namespace std;
 
 
 void thread_link(int  linkid){
+  printf("thread link %d\n",linkid);
   Link &mylink = links[linkid]; // get the link info from global database;
 
   // get destination queue as 'dq'
   queue<Packet> *dq = NULL;
+  mutex *dqlock = NULL;
   int dq_max_size;
   // If special link, dst is a controller else switch.
   if(mylink.special){
     dq = &controllers[getid(mylink.dst)].q;
     dq_max_size = controllers[getid(mylink.dst)].max_queue_size;
+    dqlock = controllers[getid(mylink.dst)].qlock;
+
   }
   else{
     dq = &switches[getid(mylink.dst)].q;
     dq_max_size = switches[getid(mylink.dst)].max_queue_size;
+    dqlock = switches[getid(mylink.dst)].qlock;
   }
 
-  printf("mylink src = %s and dst = %s\n",mylink.src.c_str(),mylink.dst.c_str());
   queue<Packet> &myq = mylink.q;
+  mutex *myqlock = links[linkid].qlock;
 
-  printf("test\n");
   while(1){
-      if(myq.size()>0){
-        printf("got packet id = %lld\n",myq.front().packet_id);
+      // Lock well before reading or writing.
+      myqlock->lock();
+      //printf("L[%d] got the mutex\n",linkid);
+      int myqsize = myq.size();
+      myqlock->unlock();
+      if(myqsize > 0){
+        lps_lock.lock();
+        gettimeofday(&latest_packet_seen,NULL);
+        lps_lock.unlock();
+
+        myqlock->lock();
+        #ifdef PRINT
+        printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s\n",linkid,current_time(),
+                  myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str());
+        #endif
+        myqlock->unlock();
+
+        int dqsize;
+        dqlock->lock();
+        dqsize = dq->size();
+        dqlock->unlock();
+
         // If dst element has buffer full.
-        if(dq->size() >= dq_max_size){
+        if(dqsize>= dq_max_size){
           // Drop the packet silently.
-          printf("Packet drop at %s\n",mylink.dst.c_str());
+
+          myqlock->lock();
+          #ifdef PRINT_PKT_DROP
+          printf("Packet %lld drop at %s\n",myq.front().packetid,mylink.dst.c_str());
+          #endif
+          mylink.packet_drop.push_back({current_time(),mylink.dst});
           myq.pop();
+          myqlock->unlock();
         }
         else{
+          myqlock->lock();
           Packet top_packet = myq.front();
+          myqlock->unlock();
             // Packet should wait for propagation delay in link.
-            // If now - packet.start >= delay of mylink put it on dst queue.
+            // If now - packet.start_time >= delay of mylink put it on dst queue.
             struct timeval now;
             gettimeofday(&now,NULL);
 
             // returns time difference in microsecond.
-            double diff = time_diff(now,top_packet.start)/1000;
+            double diff = (double)time_diff(now,top_packet.start_time);
+            int propagation_delay_time = mylink.delay > diff?mylink.delay-diff:0;
 
-            if(diff >= mylink.delay){
+            if(propagation_delay_time){
+              usleep(propagation_delay_time);
+            }
+
+              dqlock->lock();
               dq->push(top_packet);
+              dqlock->unlock();
+
+              printf("L[%d] time = %lf : pushed the packet to %s qsize = %d\n",
+              linkid,current_time(),mylink.dst.c_str(), dqsize);
+
+              myqlock->lock();
               myq.pop();
+              myqlock->unlock();
+
+
+
 
               // If this is a special link, link has to increase the
               // packet count for switch form which this packet has originated.
@@ -60,20 +107,27 @@ void thread_link(int  linkid){
                 Controller &c = controllers[getid(mylink.dst)];
                 map<string,int> &switch_pkt_count = c.switch_pkt_count;
 
+                mutex *switch_pkt_count_lock = c.switch_pkt_count_lock;
                 // If this is the first packet in queue.
+                switch_pkt_count_lock->lock();
                 if(switch_pkt_count.find(top_packet.src) == switch_pkt_count.end())
                   switch_pkt_count[top_packet.src] = 1;
-                else switch_pkt_count[top_packet.src]++;
+                  else switch_pkt_count[top_packet.src]++;
+                switch_pkt_count_lock->unlock();
               }
 
-            }
-            else sleep(0); // still need to wait: propagation delay
-            // context switch so that other threads get chance.
+
+
         }
+
       }
       else {
-        //printf("link %s queue is empty\n",linkname.c_str());
-        sleep(0); // context switch so that other threads get chance.
+        if(emulation_done){
+          struct timeval t;
+          gettimeofday(&t,NULL);
+          if(time_diff(t,latest_packet_seen) >  max_delay) break;
+        }
+        usleep(0); // context switch so that other threads get chance.
       }
   }
 }

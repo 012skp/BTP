@@ -1,0 +1,10 @@
+set terminal x11
+set   autoscale                        # scale axes automatically
+unset log                              # remove any log-scaling
+unset label                            # remove any previous labels
+set xtic auto                          # set xtics automatically
+set ytic auto                          # set ytics automatically
+set title "Variance of load on controller"
+set xlabel "Time"
+set ylabel "Load"
+plot "c0_load" using 1:2 w linespoints, "pkt_drop" using 1:2 w linespoints

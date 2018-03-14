@@ -7,7 +7,29 @@
 #include<sys/time.h>
 #include<unistd.h>
 #include<thread>
+#include<mutex>
 using namespace std;
+
+struct timeval emulation_start_time;
+struct timeval latest_packet_seen;
+mutex lps_lock;     // latest_packet_seen lock
+mutex atomic_lock;  // to execute a set of inst. atomically.
+bool emulation_done;
+int max_delay;
+
+struct dist_vector{
+  string dst;
+  int hop_count;
+  int linkid;
+};
+
+struct dist_vector_table{
+  string switchname;
+  int version; // version of forwarding_table being broadcasted.
+  vector<dist_vector> row;
+};
+
+
 enum pkt_type{CONTROL,NORMAL,ROUTING,PACKET_IN,PACKET_OUT,PKT_DROP,ACK};
 
 // only CONTROL packets will have packet subtypes
@@ -17,8 +39,10 @@ enum pkt_subtype{LOAD_MIRGRATION,ROLE_REQ,ROLE_REP,LOAD_BROADCAST,NEW_THRESHOLD}
   load migration successful.
 */
 
+struct dist_vector_table;
+
 struct Packet{
-  long long packetid;
+  long long packetid  = 0;
   pkt_type type;
   pkt_subtype subtype;
   string src;
@@ -26,7 +50,7 @@ struct Packet{
   int size;                              // pkt != 0 for NORMAL data packets
   void *data;
   // start time will be set by the element puttig packets on the link
-  struct timeval start;
+  struct timeval start_time;
 };
 
 
@@ -38,36 +62,64 @@ struct Controller{
   int current_load = 0;                       // avg_processing_time*q.size()
   int load_informed = 0;
   int allowed_load_deviation = 100;
-  int base_threshold = 1000000;               // 1E6 microsecond
+  int base_threshold = 1000000;               // 1 second
   int current_threshold = base_threshold;
   int linkid ;                                // link id through which it is connected
   queue<Packet> q;                            // packets in queue to be processed
-  int max_queue_size = 10000;
+  mutex *qlock = NULL;
+  int max_queue_size = 1000;
   map<string,int> switch_pkt_count;           // count of packets in queue by different switches
+  mutex *switch_pkt_count_lock = NULL;
   vector<int> load_collections;               // load information of other controllers.
+  mutex *lclock = NULL;
   double alpha = 0.70;                        // LB if lowest_load < alpha*current_threshold
+  int max_load_gap;                               // max_load_gap allowed between CT and (heighest load > BT).
 };
 
 
 struct Link{
   string own_name;
-  double delay;          // in milli second
-  double bandwith;       // in Mbps
+  long long  delay = 2000;                    // in  microsecond
+  long long bandwith;                         // in Kbps
   string src;
   string dst;
   queue<Packet> q;
-  bool special;       // if src is any switch and dst is controller.
+  mutex *qlock = NULL;
+  bool special = false;                               // if src is any switch and dst is controller.
+  vector<pair<double,string> > packet_drop;
 };
 
 
 struct Switch{
   string own_name;
   queue<Packet> q;
-  int max_queue_size;
-  int controllerid;              // the controller controlling the switch.
-  bool direct;                    // set to true if there is a direct link to controller.
-  int direct_controllerid;       // set to -1 if direct is false.
-  vector<Link> links;             // links that switch is connected to.
+  mutex *qlock = NULL;
+  int max_queue_size = 50000;
+  int controllerid;                   // the controller controlling the switch.
+  vector<int> connected_links;
+
+  // Initialise forwarding_table and
+  // my dist_vector_table using connected_links
+
+  map<string,int> forwarding_table;   // map of (dst,linkid)
+
+
+  dist_vector_table my_dvt;
+  mutex *my_dvt_lock = NULL;
+  /*If there is any change in my_dvt
+    update forwading_table and broadcast it.
+  */
+  vector<int> dvt_version;
+
+  map<long long int, Packet> buffer;
+  /*In case of flow table miss packets
+    from processing thread is kept in this
+    'buffer' and packet information is sent
+    to controller. Controller replies what
+    to do with the packet.
+  */
+
+
 };
 
 
@@ -75,20 +127,6 @@ vector<Switch> switches;
 vector<Link> links;
 vector<Controller> controllers;
 
-
-
-struct dist_vector{
-  string dst;
-  int hop_count;
-  string linkname;
-};
-
-struct forwarding_table{
-  string switchname;
-  int version; // version of forwading_table being broadcasted.
-  vector<dist_vector> row;
-  int counter;
-};
 
 struct broadcast_data{
   int *data;
@@ -120,6 +158,7 @@ int getid(string str){
 }
 
 
+// Returns time difference in microsecond.
 long time_diff(timeval t2, timeval t1){
   struct timeval diff;
   long d = t2.tv_sec-t1.tv_sec;
@@ -132,4 +171,13 @@ int random(int low, int high){
   int diff = high-low;
   int r = rand()%(diff+1);
   return low+r;
+}
+
+// Returns time elapsed from starting of program.
+double current_time(){
+  struct timeval t;
+  gettimeofday(&t,NULL);
+  long usec = time_diff(t,emulation_start_time);
+  double time_elapsed = (1.0*usec)/1000000;
+  return time_elapsed;
 }

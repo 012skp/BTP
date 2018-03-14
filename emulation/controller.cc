@@ -4,64 +4,112 @@
 #include "core.h"
 #endif
 
+void controller_load_informating(int controllerid);
+void controller_load_balancing_decision_maker(int controllerid);
 
 
-void thread_controller_load_measurement(int controllerid){
+
+void thread_controller_load_balancing(int controllerid){
+    char filename[20];
+    memset(filename,0,20);
+    strcat(filename,"c");
+    sprintf(filename+1,"%d",controllerid);
+    strcat(filename,"_load");
+    FILE *fp = fopen(filename,"w");
     Controller &myc = controllers[controllerid];
     queue<Packet> &myq = myc.q;
+    mutex *myqlock = myc.qlock;
     while(1){
-      myc.current_load = myq.size()*myc.avg_processing_time;
-      usleep(10000); // period = 10 milli second.
+      myqlock->lock();
+      int qsize = myq.size();
+      myqlock->unlock();
+      if(qsize>myc.max_queue_size || qsize < 0)
+        printf("ASSERT failed qsize = %d\n",qsize);
+      assert(qsize >= 0);
+      assert(qsize <= myc.max_queue_size);
+
+      myc.current_load = qsize*myc.avg_processing_time;
+      controller_load_informating(controllerid);
+      controller_load_balancing_decision_maker(controllerid);
+
+      fprintf(fp,"%lf %d\n",current_time(),qsize);
+      #ifdef PRINT
+      printf("Load =%d\n",qsize);
+      #endif
+      if(emulation_done){
+        struct timeval t;
+        gettimeofday(&t,NULL);
+        if(time_diff(t,latest_packet_seen)>max_delay){fclose(fp); break;}
+      }
+      usleep(1000); // period = 10 milli second.
+
+
     }
 }
 
-void thread_controller_load_informating(int controllerid){
+
+void controller_load_informating(int controllerid){
   Controller &myc = controllers[controllerid];
   Link &l = links[myc.linkid];
   queue<Packet> &lq = l.q;
-  while(1){
+  mutex *lqlock = l.qlock;
     if(abs(myc.load_informed - myc.current_load) > myc.allowed_load_deviation){
       // Do load broadcasting...
+      Packet p;
+      p.src = "c"+ to_string(controllerid);
+      p.type = CONTROL;
+      p.subtype = LOAD_BROADCAST;
+      broadcast_data *bd = (broadcast_data*)malloc(sizeof(broadcast_data));
+      bd->data = new int(myc.current_load);
+      bd->counter = controllers.size()-1;
+      p.data = (void*)bd;
+
       for(int i=0;i<controllers.size();i++){
         if(i==controllerid) continue;
-        Packet p;
-        p.src = "c"+ to_string(controllerid);
         p.dst = "c"+ to_string(i);
-        p.type = CONTROL;
-        p.subtype = LOAD_BROADCAST;
-        // TODO add load value.
+        gettimeofday(&p.start_time,NULL);
+
+        lqlock->lock();
         lq.push(p);
+        lqlock->unlock();
       }
       myc.load_informed = myc.current_load;
     }
-    else usleep(10000); // sleep for 10 milli second.
-  }
 }
 
 
-void thread_controller_load_balancer(int controllerid){
+void controller_load_balancing_decision_maker(int controllerid){
+  if(controllers.size() == 1) return;
   Controller &myc = controllers[controllerid];
 
-  while(1){
-      bool heaviest = true;
+      // Get load_collections lock before reading it.
+      // Because it may be updated my thread_controller_processing.
+      mutex *lclock = myc.lclock;
+      lclock->lock();
       for(int i=0;i<myc.load_collections.size();i++){
         if(i == controllerid) continue;
-        if(myc.current_load < myc.load_collections[i])
-          goto wait;   // is not heaviest loaded controller don't do anything
+        if(myc.current_load < myc.load_collections[i]){
+          lclock->unlock();
+          goto adjust_threshold;   // is not heaviest loaded controller don't do anything
+        }
       }
+      lclock->unlock();
+
 
       // This is the heaviest loaded controller do load_balancing.
       if(myc.current_load > myc.current_threshold){
             // Search for lightest loaded controller.
             int lowest_cid = -1;    // lowest loaded controllerid.
             int lowest_load = myc.current_load;
+
+            lclock->lock();
             for(int i=0;i<myc.load_collections.size();i++){
               if(myc.load_collections[i] < lowest_load){
                 lowest_load = myc.load_collections[i];
                 lowest_cid = i;
               }
             }
-
+            lclock->unlock();
             assert(lowest_cid != -1);
 
 
@@ -73,16 +121,25 @@ void thread_controller_load_balancer(int controllerid){
               // load < (heaviest_load-lowest_load)/2 -----(1)
               int desired_switch_load = (myc.current_load-lowest_load)/2;
 
+              // switch_pkt_count can be modified by link thread.
+              mutex *switch_pkt_count_lock = myc.switch_pkt_count_lock;
+              switch_pkt_count_lock->lock();
               auto itr = myc.switch_pkt_count.begin();
               string the_switch = "";
               int load = -1;
 
               // try to find first switch that satisfies (1)
-              assert(myc.q.size()>0);
+              int myqsize;
+              mutex *myqlock = myc.qlock;
+              myqlock->lock();
+              myqsize = myc.q.size();
+              myqlock->unlock();
+
+              assert(myqsize>0);
               while(itr != myc.switch_pkt_count.end()){
-                if( ((itr->second*myc.current_load)/myc.q.size()) < desired_switch_load){
+                if( ((itr->second*myc.current_load)/myqsize) < desired_switch_load){
                   the_switch = itr->first;
-                  load = (itr->second*myc.current_load)/myc.q.size();
+                  load = (itr->second*myc.current_load)/myqsize;
                   break;
                 }
                 itr++;
@@ -92,12 +149,14 @@ void thread_controller_load_balancer(int controllerid){
 
               // Now try to find switch with heighest load satifying (1).
               while(itr != myc.switch_pkt_count.end()){
-                if( ((itr->second*myc.current_load)/myc.q.size()) < desired_switch_load &&
-                    ((itr->second*myc.current_load)/myc.q.size()) > load){
-                      load = ((itr->second*myc.current_load)/myc.q.size());
+                if( ((itr->second*myc.current_load)/myqsize) < desired_switch_load &&
+                    ((itr->second*myc.current_load)/myqsize) > load){
+                      load = ((itr->second*myc.current_load)/myqsize);
                       the_switch = itr->first;
                 }
               }
+              switch_pkt_count_lock->unlock();
+
 
               // Now we have heaviest loaded switch satisying (1).
               // Do switch migration. Send CONTROL Packet with LOAD_MIRGRATION subtype
@@ -110,8 +169,12 @@ void thread_controller_load_balancer(int controllerid){
               p.type = CONTROL;
               p.subtype = LOAD_MIRGRATION;
               p.data = (void*)sid;
+              gettimeofday(&p.start_time,NULL);
 
+              mutex *lqlock = links[myc.linkid].qlock;
+              lqlock->lock();
               links[myc.linkid].q.push(p);
+              lqlock->unlock();
 
             }
             else {
@@ -125,31 +188,92 @@ void thread_controller_load_balancer(int controllerid){
               bd->data = new int(myc.current_load);
               bd->counter = controllers.size()-1;
               p.data = (void*)bd;
-              // TODO make sure to free the memory when counter reaches 0.
+              // make sure to free the memory when counter reaches 0.
+
+              mutex *lqlock = links[myc.linkid].qlock;
+              lqlock->lock();
               for(int i=0;i<controllers.size();i++){
                 if(i == controllerid) continue;
                 p.dst = "c" + to_string(i);
+                gettimeofday(&p.start_time,NULL);
                 links[myc.linkid].q.push(p);
               }
+              lqlock->unlock();
 
-              goto wait;
+              goto adjust_threshold;
             }
 
       }
-      wait:
-        usleep(10000); // sleep for 10 milli second
-  }
+      adjust_threshold:
+        if(myc.current_load > myc.base_threshold){
+          bool  heaviest_loaded = true;
+          int heaviest_load = myc.current_load;
+          for(int i=0;i<myc.load_collections.size();i++){
+            if(myc.load_collections[i] > heaviest_load){
+              heaviest_loaded = false;
+              break;
+            }
+          }
+
+          // If heaviest_loaded check load_gap.
+          if(heaviest_loaded && myc.current_load-heaviest_load > myc.max_load_gap){
+            // Do load adjustment.
+            myc.current_threshold = heaviest_load;
+            // Broadcast NEW_THRESHOLD equal to heaviest_load.
+            Packet  p;
+            p.src = "c" + to_string(controllerid);
+            p.type = CONTROL;
+            p.subtype = NEW_THRESHOLD;
+            broadcast_data *bd = (broadcast_data*)malloc(sizeof(broadcast_data));
+            // Set current_load or heaviest_load as new_threshold.
+            bd->data = new int(myc.current_load);
+            bd->counter = controllers.size()-1;
+            p.data = (void*)bd;
+            // make sure to free the memory when counter reaches 0.
+
+            mutex *lqlock = links[myc.linkid].qlock;
+            lqlock->lock();
+            for(int i=0;i<controllers.size();i++){
+              if(i == controllerid) continue;
+              p.dst = "c" + to_string(i);
+              gettimeofday(&p.start_time,NULL);
+              links[myc.linkid].q.push(p);
+            }
+            lqlock->unlock();
+          }
+
+        }
+
+
 }
 
 
-
 void thread_controller_processing(int controllerid){
+  printf("thread controller %d\n",controllerid);
   Controller &myc = controllers[controllerid];
   queue<Packet> &myq = myc.q;
+  mutex *myqlock = myc.qlock;
   // Get packets from queue and process them.
   while(1){
-    while(!myq.empty()){
+    bool myqempty;
+    myqlock->lock();
+    myqempty = myq.empty();
+    myqlock->unlock();
+
+    if(!myqempty){
+      lps_lock.lock();
+      gettimeofday(&latest_packet_seen,NULL);
+      lps_lock.unlock();
+
+      myqlock->lock();
       Packet p = myq.front();
+      myqlock->unlock();
+
+      #ifdef PRINT
+      printf("C[%d] time:%lf => packetid = %lld, src = %s\n",controllerid,current_time(),
+                                                        p.packetid,p.src.c_str());
+      #endif
+
       if(p.type == PACKET_IN){
           // processing_time = random(min_processing_time,max_processig_time).
           int processing_time = random(myc.min_processing_time, myc.max_processing_time);
@@ -161,8 +285,11 @@ void thread_controller_processing(int controllerid){
           np.src = p.dst;
           np.dst = p.src;
           np.packetid = p.packetid;
+          gettimeofday(&np.start_time,NULL);
 
+          links[myc.linkid].qlock->lock();
           links[myc.linkid].q.push(np);
+          links[myc.linkid].qlock->unlock();
       }
       else if(p.type == CONTROL){
           // Handle LOAD_MIRGRATION
@@ -176,17 +303,21 @@ void thread_controller_processing(int controllerid){
             np.subtype = ROLE_REQ;
             np.src = "c" + to_string(controllerid);
             np.dst = "s" + to_string(sid);
+            gettimeofday(&np.start_time,NULL);
+
+            links[myc.linkid].qlock->lock();
             links[myc.linkid].q.push(np);
+            links[myc.linkid].qlock->unlock();
           }
 
           // Handle NEW_THRESHOLD
-          if(p.subtype = NEW_THRESHOLD){
+          else if(p.subtype = NEW_THRESHOLD){
             // Retrive new_th value.
             int new_th = *(((broadcast_data*)p.data)->data);
             // Decrement the counter.
             ((broadcast_data*)p.data)->counter--;
             int counter = ((broadcast_data*)p.data)->counter;
-            if(counter == 0){
+            if(counter <= 0){
               // Free new_th memory
               free(((broadcast_data*)p.data)->data);
               free(p.data);
@@ -197,18 +328,62 @@ void thread_controller_processing(int controllerid){
           }
 
           // Handle LOAD_BROADCAST
-          if(p.subtype = LOAD_BROADCAST){
+          else if(p.subtype = LOAD_BROADCAST){
+            int load =  *(((broadcast_data*)p.data)->data); // controller's load
+            int scid =    getid(p.src);                     // src controller's id
+            myc.lclock->lock();
+            myc.load_collections[scid] =  load;
+            myc.lclock->unlock();
 
+            // Decrement the counter.
+            ((broadcast_data*)p.data)->counter--;
+            int counter = ((broadcast_data*)p.data)->counter;
+            if(counter == 0){
+              // Free new_th memory
+              free(((broadcast_data*)p.data)->data);
+              free(p.data);
+            }
           }
 
           // Handle ROLE_REP
-          if(p.subtype = ROLE_REP){
+          else if(p.subtype = ROLE_REP){
             // do nothing.
+            // this controller is now master of p.src switch.
           }
+
+          else printf("Unknown pkt_subtype %d under CONTROL at c%d\n",p.subtype,controllerid);
       }
       else printf("Unknown pkt_type %d at c%d\n",p.type,controllerid);
 
+      mutex *switch_pkt_count_lock = myc.switch_pkt_count_lock;
+      switch_pkt_count_lock->lock();
+      myc.switch_pkt_count[p.dst]--;
+      switch_pkt_count_lock->unlock();
+
+      myqlock->lock();
       myq.pop();
+      myqlock->unlock();
+
+
+
     }
+    else{
+      if(emulation_done){
+        struct timeval t;
+        lps_lock.lock();
+        gettimeofday(&t,NULL);
+        long td = time_diff(t,latest_packet_seen);
+        lps_lock.unlock();
+        if(td > max_delay){
+          printf("Exiting becase of timeout diff = %ld\n",td);
+          break;
+        }
+
+      }
+      //usleep(2000);
+    }
+
+
   }
+  printf("C[%d] exited\n",controllerid);
 }
