@@ -1,15 +1,15 @@
 // Switchs codes...
 
 void thread_switch_processing(int switchid){
-  printf("thrad switch %d\n",switchid);
   Switch &mys = switches[switchid];
   queue<Packet> &myq = mys.q;
   mutex *myqlock = mys.qlock;
   while(1){
     myqlock->lock();
     bool myqempty;
+    myqempty = myq.empty();
     myqlock->unlock();
-    while(!myqempty){
+    if(!myqempty){
       lps_lock.lock();
       gettimeofday(&latest_packet_seen,NULL);
       lps_lock.unlock();
@@ -18,10 +18,12 @@ void thread_switch_processing(int switchid){
       Packet &p = myq.front();
       myqlock->unlock();
 
+      #ifdef PRINT
+      printf("S[%d] time:%lf => packetid = %lld, src = %s, dst = %s\n",switchid,
+                current_time(),p.packetid,p.src.c_str(),p.dst.c_str());
+      #endif
       // If this is ROUTING packet.
-      if(p.type = ROUTING){
-        printf("received a ROUTING packet from %s version %d\n",p.src.c_str(),
-            ((dist_vector_table*)p.data)->version);
+      if(p.type == ROUTING){
         // received_dist_vector_table.
 
         // Lock both r_dvt and my_dvt,
@@ -44,11 +46,13 @@ void thread_switch_processing(int switchid){
             // row is tuple containing {dst,hop_count,linkid}
             dist_vector &r_dv = r_dvt->row[i];
             string dst = r_dv.dst;
+            if(dst == mys.own_name) continue;
+
             // search for dst in my_dvt.
             bool new_dv_entry = true;
 
             for(int j=0; j<mys.my_dvt.row.size();j++){
-              dist_vector &my_dv = mys.my_dvt.row[i];
+              dist_vector &my_dv = mys.my_dvt.row[j];
               if(my_dv.dst == dst){
                 if(my_dv.hop_count > r_dv.hop_count+1){
                   // update my_dv.
@@ -76,8 +80,14 @@ void thread_switch_processing(int switchid){
             // If my_dvt has been updated update the forwarding_table.
             for(int i=0;i<mys.my_dvt.row.size();i++){
               dist_vector &dv = mys.my_dvt.row[i];
+              if(dv.dst == mys.own_name) continue;
               mys.forwarding_table[dv.dst] = dv.linkid;
             }
+
+            #ifdef PRINT
+            printf("Routing table updated\n");
+            routing_table_info(switchid);
+            #endif
 
             // Broadcast new dvt.
 
@@ -107,8 +117,8 @@ void thread_switch_processing(int switchid){
         }
 
         atomic_lock.lock();
-        r_dvt_lock->lock();
-        my_dvt_lock->lock();
+        r_dvt_lock->unlock();
+        my_dvt_lock->unlock();
         atomic_lock.unlock();
 
         myqlock->lock();
@@ -127,20 +137,23 @@ void thread_switch_processing(int switchid){
         }
         else if(p.type == PACKET_OUT){
           // Get the packet from buffer.
-          Packet np = mys.buffer[p.packetid];
-          mys.buffer.erase(p.packetid);
+          if(mys.buffer.find(p.packetid) == mys.buffer.end());
+          else{
+            Packet np = mys.buffer[p.packetid];
+            mys.buffer.erase(p.packetid);
 
-          //TODO transmissin dealy not implemented.
-          gettimeofday(&np.start_time,NULL);
-          links[mys.forwarding_table[np.dst]].qlock->lock();
-          links[mys.forwarding_table[np.dst]].q.push(np);
-          links[mys.forwarding_table[np.dst]].qlock->unlock();
+            //TODO transmissin dealy not implemented.
+            gettimeofday(&np.start_time,NULL);
+            links[mys.forwarding_table[np.dst]].qlock->lock();
+            links[mys.forwarding_table[np.dst]].q.push(np);
+            links[mys.forwarding_table[np.dst]].qlock->unlock();
+          }
         }
       }
       else{
         // This packet isn't for me, simply forward it.
         // Check for entry in flow table.
-        bool entry = rand()%10<7?true:false;
+        bool entry = rand()%100<mys.flow_table_hit_percentage?true:false;
         if(entry){
           // If flow table hit, forwad it.
           // TODO transmission delay not implemented.
@@ -182,14 +195,51 @@ void thread_switch_processing(int switchid){
         }
       }
       // all processing done pop the packet.
+      myqlock->lock();
       myq.pop();
+      myqlock->unlock();
     }
     // no packets in queue.
-    if(emulation_done){
+    else if(emulation_done){
       struct timeval t;
       gettimeofday(&t,NULL);
-      if(time_diff(t,latest_packet_seen)>max_delay) break;
+      lps_lock.lock();
+      long td = time_diff(t,latest_packet_seen);
+      lps_lock.unlock();
+      if(td>max_delay){
+        #ifdef PRINT
+        printf("S[%d] exited\n",switchid);
+        #endif
+        break;
+      }
     }
-    usleep(1000); // sleep for 1 milli second
+    else usleep(1000); // sleep for 1 milli second
+  }
+}
+
+
+
+void thread_switch_pkt_generator(int switchid){
+  // Packet generating rate
+  Switch &mys = switches[switchid];
+  int pkt_id = switchid*1000000;
+  while(1){
+    Packet p;
+    p.src = mys.own_name;
+    int did = rand()%switches.size();
+    while(did == switchid) did = rand()%switches.size();
+    p.dst = "s" + to_string(did);
+    p.type = NORMAL;
+    p.packetid = pkt_id++;
+    p.data = NULL;
+
+    mys.qlock->lock();
+    mys.q.push(p);
+    mys.pkt_gen_time.push_back(current_time());
+    mys.qlock->unlock();
+
+    mys.pkt_gen_interval_lock->lock();
+    usleep(mys.pkt_gen_interval);
+    mys.pkt_gen_interval_lock->unlock();
   }
 }

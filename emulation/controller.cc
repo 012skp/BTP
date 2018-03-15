@@ -8,7 +8,7 @@ void controller_load_informating(int controllerid);
 void controller_load_balancing_decision_maker(int controllerid);
 
 
-
+// Load Collection every 1000 microsecond.
 void thread_controller_load_balancing(int controllerid){
     char filename[20];
     memset(filename,0,20);
@@ -34,12 +34,20 @@ void thread_controller_load_balancing(int controllerid){
 
       fprintf(fp,"%lf %d\n",current_time(),qsize);
       #ifdef PRINT
-      printf("Load =%d\n",qsize);
       #endif
       if(emulation_done){
         struct timeval t;
+        lps_lock.lock();
         gettimeofday(&t,NULL);
-        if(time_diff(t,latest_packet_seen)>max_delay){fclose(fp); break;}
+        long td = time_diff(t,latest_packet_seen);
+        lps_lock.unlock();
+        if(td>max_delay){
+          fclose(fp);
+          #ifdef PRINT
+          printf("C1[%d] exited\n",controllerid);
+          #endif
+          break;
+        }
       }
       usleep(1000); // period = 10 milli second.
 
@@ -249,7 +257,6 @@ void controller_load_balancing_decision_maker(int controllerid){
 
 
 void thread_controller_processing(int controllerid){
-  printf("thread controller %d\n",controllerid);
   Controller &myc = controllers[controllerid];
   queue<Packet> &myq = myc.q;
   mutex *myqlock = myc.qlock;
@@ -375,7 +382,9 @@ void thread_controller_processing(int controllerid){
         long td = time_diff(t,latest_packet_seen);
         lps_lock.unlock();
         if(td > max_delay){
-          printf("Exiting becase of timeout diff = %ld\n",td);
+          #ifdef PRINT
+          printf("C2[%d] exited\n",controllerid);
+          #endif
           break;
         }
 
@@ -385,5 +394,4 @@ void thread_controller_processing(int controllerid){
 
 
   }
-  printf("C[%d] exited\n",controllerid);
 }

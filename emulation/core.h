@@ -12,10 +12,10 @@ using namespace std;
 
 struct timeval emulation_start_time;
 struct timeval latest_packet_seen;
-mutex lps_lock;     // latest_packet_seen lock
-mutex atomic_lock;  // to execute a set of inst. atomically.
+mutex lps_lock;                           // latest_packet_seen lock
+mutex atomic_lock;                        // to execute a set of inst. atomically.
 bool emulation_done;
-int max_delay;
+int max_delay;                            // if latest_packet_seen dealy > max_delay stop emulation.                            
 
 struct dist_vector{
   string dst;
@@ -73,14 +73,14 @@ struct Controller{
   vector<int> load_collections;               // load information of other controllers.
   mutex *lclock = NULL;
   double alpha = 0.70;                        // LB if lowest_load < alpha*current_threshold
-  int max_load_gap;                               // max_load_gap allowed between CT and (heighest load > BT).
+  int max_load_gap = 0.20*base_threshold;     // max_load_gap allowed between CT and (heighest load > BT).
 };
 
 
 struct Link{
   string own_name;
   long long  delay = 2000;                    // in  microsecond
-  long long bandwith;                         // in Kbps
+  long long bandwith = 1024*1024;             // in Kbps
   string src;
   string dst;
   queue<Packet> q;
@@ -91,17 +91,17 @@ struct Link{
 
 
 struct Switch{
-  string own_name;
+  string own_name = "";
   queue<Packet> q;
   mutex *qlock = NULL;
   int max_queue_size = 50000;
-  int controllerid;                   // the controller controlling the switch.
+  int controllerid;                             // the controller controlling the switch.
   vector<int> connected_links;
 
   // Initialise forwarding_table and
-  // my dist_vector_table using connected_links
-
-  map<string,int> forwarding_table;   // map of (dst,linkid)
+  // my dist_vector_table using
+  // connected_links
+  map<string,int> forwarding_table;             // map of (dst,linkid)
 
 
   dist_vector_table my_dvt;
@@ -119,6 +119,12 @@ struct Switch{
     to do with the packet.
   */
 
+  int pkt_gen_interval = 1000;                 //generate pkt_after every 1 milli second.
+  mutex *pkt_gen_interval_lock = NULL;
+
+  vector<double> pkt_gen_time;
+
+  int flow_table_hit_percentage = 10;
 
 };
 
@@ -180,4 +186,21 @@ double current_time(){
   long usec = time_diff(t,emulation_start_time);
   double time_elapsed = (1.0*usec)/1000000;
   return time_elapsed;
+}
+
+
+void routing_table_info(int switchid){
+  printf("Forwading Table of switch %s\n",switches[switchid].own_name.c_str());
+  for(auto itr : switches[switchid].forwarding_table){
+    printf("%s->l%d\n",itr.first.c_str(),itr.second);
+  }
+}
+
+void dvt_info(int switchid){
+  dist_vector_table &dvt = switches[switchid].my_dvt;
+  printf("Distance Vector Table for switch %s\n",dvt.switchname.c_str());
+  for(int i=0;i<dvt.row.size();i++){
+    dist_vector &dv = dvt.row[i];
+    printf("dst = %s, linkid = %d, hop_count = %d\n",dv.dst.c_str(),dv.linkid,dv.hop_count);
+  }
 }

@@ -12,7 +12,6 @@ using namespace std;
 
 
 void thread_link(int  linkid){
-  printf("thread link %d\n",linkid);
   Link &mylink = links[linkid]; // get the link info from global database;
 
   // get destination queue as 'dq'
@@ -91,8 +90,6 @@ void thread_link(int  linkid){
               dq->push(top_packet);
               dqlock->unlock();
 
-              printf("L[%d] time = %lf : pushed the packet to %s qsize = %d\n",
-              linkid,current_time(),mylink.dst.c_str(), dqsize);
 
               myqlock->lock();
               myq.pop();
@@ -125,7 +122,12 @@ void thread_link(int  linkid){
         if(emulation_done){
           struct timeval t;
           gettimeofday(&t,NULL);
-          if(time_diff(t,latest_packet_seen) >  max_delay) break;
+          if(time_diff(t,latest_packet_seen) >  max_delay){
+            #ifdef PRINT
+            printf("L[%d] exited\n",linkid);
+            #endif
+            break;
+          }
         }
         usleep(0); // context switch so that other threads get chance.
       }

@@ -1,910 +1,672 @@
 g++ -std=c++11 main.cc -lpthread
 ./a.out
-L[0] time:0.000193 => packetid = 0, src = s0
-Load =0
-Load =0
-C[0] time:0.002139 => packetid = 0, src = s0
-L[0] time:0.002144 => packetid = 1, src = s0
-Load =1
-Load =1
-L[1] time:0.003670 => packetid = 0, src = c0
-C[0] time:0.003684 => packetid = 1, src = s0
-L[0] time:0.003695 => packetid = 2, src = s0
-L[0] time:0.004037 => packetid = 3, src = s0
-Load =2
-C[0] time:0.004768 => packetid = 2, src = s0
-Load =1
-L[1] time:0.005700 => packetid = 1, src = c0
-C[0] time:0.006049 => packetid = 3, src = s0
-L[0] time:0.006051 => packetid = 4, src = s0
-Load =1
-L[1] time:0.006822 => packetid = 2, src = c0
-L[0] time:0.007419 => packetid = 5, src = s0
-C[0] time:0.007420 => packetid = 4, src = s0
-Load =1
-L[1] time:0.008000 => packetid = 3, src = c0
-Load =1
-L[0] time:0.009195 => packetid = 6, src = s0
-C[0] time:0.009524 => packetid = 5, src = s0
-L[1] time:0.009577 => packetid = 4, src = c0
-Load =1
-L[0] time:0.010409 => packetid = 7, src = s0
-C[0] time:0.010647 => packetid = 6, src = s0
-L[0] time:0.010977 => packetid = 8, src = s0
-Load =2
-L[1] time:0.011652 => packetid = 5, src = c0
-C[0] time:0.012212 => packetid = 7, src = s0
-Load =1
-L[1] time:0.012748 => packetid = 6, src = c0
-L[0] time:0.012889 => packetid = 9, src = s0
-L[0] time:0.013175 => packetid = 10, src = s0
-Load =3
-C[0] time:0.013895 => packetid = 8, src = s0
-L[0] time:0.014012 => packetid = 11, src = s0
-L[1] time:0.014338 => packetid = 7, src = c0
-Load =3
-L[0] time:0.015021 => packetid = 12, src = s0
-C[0] time:0.015198 => packetid = 9, src = s0
-Load =3
-L[0] time:0.015827 => packetid = 13, src = s0
-L[1] time:0.015988 => packetid = 8, src = c0
-Load =4
-L[0] time:0.017142 => packetid = 14, src = s0
-C[0] time:0.017162 => packetid = 10, src = s0
-L[1] time:0.017257 => packetid = 9, src = c0
-L[0] time:0.017320 => packetid = 15, src = s0
-Load =5
-L[0] time:0.018241 => packetid = 16, src = s0
-C[0] time:0.018879 => packetid = 11, src = s0
-Load =5
-L[1] time:0.019289 => packetid = 10, src = c0
-L[0] time:0.019357 => packetid = 17, src = s0
-L[0] time:0.019736 => packetid = 18, src = s0
-Load =7
-C[0] time:0.020009 => packetid = 12, src = s0
-L[0] time:0.020205 => packetid = 19, src = s0
-L[1] time:0.020948 => packetid = 11, src = c0
-Load =6
-C[0] time:0.021102 => packetid = 13, src = s0
-L[0] time:0.021741 => packetid = 20, src = s0
-L[1] time:0.022078 => packetid = 12, src = c0
-Load =7
-C[0] time:0.022924 => packetid = 14, src = s0
-L[1] time:0.023159 => packetid = 13, src = c0
-Load =6
-L[0] time:0.023618 => packetid = 21, src = s0
-C[0] time:0.024049 => packetid = 15, src = s0
-Load =6
-L[0] time:0.024961 => packetid = 22, src = s0
-L[1] time:0.024980 => packetid = 14, src = c0
-L[0] time:0.025180 => packetid = 23, src = s0
-C[0] time:0.025310 => packetid = 16, src = s0
-Load =7
-L[1] time:0.026124 => packetid = 15, src = c0
-Load =7
-L[0] time:0.026712 => packetid = 24, src = s0
-C[0] time:0.027346 => packetid = 17, src = s0
-L[1] time:0.027386 => packetid = 16, src = c0
-Load =7
-L[0] time:0.027896 => packetid = 25, src = s0
-C[0] time:0.028547 => packetid = 18, src = s0
-Load =7
-L[1] time:0.029446 => packetid = 17, src = c0
-Load =7
-C[0] time:0.029839 => packetid = 19, src = s0
-L[0] time:0.029913 => packetid = 26, src = s0
-L[0] time:0.030632 => packetid = 27, src = s0
-L[1] time:0.030634 => packetid = 18, src = c0
-Load =8
-C[0] time:0.031104 => packetid = 20, src = s0
-Load =7
-L[1] time:0.031897 => packetid = 19, src = c0
-L[0] time:0.032086 => packetid = 28, src = s0
-L[0] time:0.032298 => packetid = 29, src = s0
-C[0] time:0.032625 => packetid = 21, src = s0
-Load =8
-L[1] time:0.033196 => packetid = 20, src = c0
-Load =8
-L[0] time:0.034139 => packetid = 30, src = s0
-C[0] time:0.034484 => packetid = 22, src = s0
-L[1] time:0.034760 => packetid = 21, src = c0
-Load =8
-L[0] time:0.035488 => packetid = 31, src = s0
-Load =9
-C[0] time:0.036440 => packetid = 23, src = s0
-L[1] time:0.036573 => packetid = 22, src = c0
-L[0] time:0.036914 => packetid = 32, src = s0
-L[0] time:0.036984 => packetid = 33, src = s0
-Load =10
-L[0] time:0.037495 => packetid = 34, src = s0
-C[0] time:0.038169 => packetid = 24, src = s0
-L[0] time:0.038320 => packetid = 35, src = s0
-Load =11
-L[1] time:0.038498 => packetid = 23, src = c0
-L[0] time:0.039091 => packetid = 36, src = s0
-Load =12
-C[0] time:0.039900 => packetid = 25, src = s0
-L[1] time:0.040263 => packetid = 24, src = c0
-L[0] time:0.040280 => packetid = 37, src = s0
-L[0] time:0.040518 => packetid = 38, src = s0
-Load =13
-C[0] time:0.041422 => packetid = 26, src = s0
-Load =12
-L[0] time:0.041855 => packetid = 39, src = s0
-L[1] time:0.041982 => packetid = 25, src = c0
-L[0] time:0.042194 => packetid = 40, src = s0
-C[0] time:0.042705 => packetid = 27, src = s0
-Load =13
-L[0] time:0.043170 => packetid = 41, src = s0
-L[1] time:0.043517 => packetid = 26, src = c0
-C[0] time:0.043961 => packetid = 28, src = s0
-Load =13
-L[0] time:0.043997 => packetid = 42, src = s0
-L[0] time:0.044410 => packetid = 43, src = s0
-L[1] time:0.044798 => packetid = 27, src = c0
-Load =15
-L[0] time:0.045416 => packetid = 44, src = s0
-C[0] time:0.045665 => packetid = 29, src = s0
-L[1] time:0.046115 => packetid = 28, src = c0
-Load =15
-L[0] time:0.046665 => packetid = 45, src = s0
-L[0] time:0.046930 => packetid = 46, src = s0
-C[0] time:0.046935 => packetid = 30, src = s0
-L[0] time:0.047151 => packetid = 47, src = s0
-Load =17
-L[1] time:0.047796 => packetid = 29, src = c0
-L[0] time:0.047877 => packetid = 48, src = s0
-Load =18
-C[0] time:0.048954 => packetid = 31, src = s0
-L[1] time:0.049028 => packetid = 30, src = c0
-L[0] time:0.049334 => packetid = 49, src = s0
-Load =18
-C[0] time:0.050322 => packetid = 32, src = s0
-Load =17
-L[0] time:0.050593 => packetid = 50, src = s0
-L[0] time:0.050926 => packetid = 51, src = s0
-L[1] time:0.051047 => packetid = 31, src = c0
-L[0] time:0.051328 => packetid = 52, src = s0
-Load =20
-C[0] time:0.051977 => packetid = 33, src = s0
-L[1] time:0.052391 => packetid = 32, src = c0
-Load =19
-L[0] time:0.052931 => packetid = 53, src = s0
-C[0] time:0.053672 => packetid = 34, src = s0
-Load =19
-L[0] time:0.053955 => packetid = 54, src = s0
-L[1] time:0.054033 => packetid = 33, src = c0
-L[0] time:0.054383 => packetid = 55, src = s0
-Load =21
-C[0] time:0.055146 => packetid = 35, src = s0
-L[1] time:0.055743 => packetid = 34, src = c0
-Load =20
-L[0] time:0.056020 => packetid = 56, src = s0
-L[0] time:0.056612 => packetid = 57, src = s0
-C[0] time:0.056718 => packetid = 36, src = s0
-L[0] time:0.056756 => packetid = 58, src = s0
-Load =22
-L[0] time:0.057225 => packetid = 59, src = s0
-L[1] time:0.057242 => packetid = 35, src = c0
-C[0] time:0.057906 => packetid = 37, src = s0
-Load =22
-L[1] time:0.058815 => packetid = 36, src = c0
-L[0] time:0.058994 => packetid = 60, src = s0
-Load =23
-C[0] time:0.059234 => packetid = 38, src = s0
-L[1] time:0.059961 => packetid = 37, src = c0
-L[0] time:0.059980 => packetid = 61, src = s0
-Load =23
-C[0] time:0.061072 => packetid = 39, src = s0
-Load =22
-L[1] time:0.061333 => packetid = 38, src = c0
-L[0] time:0.061541 => packetid = 62, src = s0
-L[0] time:0.061992 => packetid = 63, src = s0
-Load =24
-C[0] time:0.062641 => packetid = 40, src = s0
-L[1] time:0.063205 => packetid = 39, src = c0
-Load =23
-L[0] time:0.064001 => packetid = 64, src = s0
-Load =24
-C[0] time:0.064696 => packetid = 41, src = s0
-L[1] time:0.064725 => packetid = 40, src = c0
-L[0] time:0.065665 => packetid = 65, src = s0
-Load =24
-C[0] time:0.066078 => packetid = 42, src = s0
-Load =23
-L[1] time:0.066792 => packetid = 41, src = c0
-L[0] time:0.066797 => packetid = 66, src = s0
-C[0] time:0.067299 => packetid = 43, src = s0
-Load =23
-L[1] time:0.068166 => packetid = 42, src = c0
-L[0] time:0.068424 => packetid = 67, src = s0
-Load =24
-C[0] time:0.069037 => packetid = 44, src = s0
-L[1] time:0.069397 => packetid = 43, src = c0
-L[0] time:0.069759 => packetid = 68, src = s0
-Load =24
-L[0] time:0.070633 => packetid = 69, src = s0
-C[0] time:0.071001 => packetid = 45, src = s0
-L[1] time:0.071113 => packetid = 44, src = c0
-Load =24
-Load =24
-L[0] time:0.072664 => packetid = 70, src = s0
-C[0] time:0.073042 => packetid = 46, src = s0
-L[1] time:0.073084 => packetid = 45, src = c0
-Load =24
-L[0] time:0.073412 => packetid = 71, src = s0
-L[0] time:0.074290 => packetid = 72, src = s0
-Load =26
-C[0] time:0.074631 => packetid = 47, src = s0
-L[1] time:0.075114 => packetid = 46, src = c0
-Load =25
-L[0] time:0.075653 => packetid = 73, src = s0
-L[0] time:0.076495 => packetid = 74, src = s0
-Load =27
-C[0] time:0.076689 => packetid = 48, src = s0
-L[1] time:0.076698 => packetid = 47, src = c0
-L[0] time:0.077741 => packetid = 75, src = s0
-Load =27
-C[0] time:0.078005 => packetid = 49, src = s0
-L[1] time:0.078785 => packetid = 48, src = c0
-Load =26
-L[0] time:0.078883 => packetid = 76, src = s0
-C[0] time:0.079670 => packetid = 50, src = s0
-Load =26
-L[1] time:0.080107 => packetid = 49, src = c0
-L[0] time:0.080860 => packetid = 77, src = s0
-Load =27
-C[0] time:0.081363 => packetid = 51, src = s0
-L[1] time:0.081737 => packetid = 50, src = c0
-Load =26
-L[0] time:0.082653 => packetid = 78, src = s0
-C[0] time:0.082654 => packetid = 52, src = s0
-Load =26
-L[1] time:0.083426 => packetid = 51, src = c0
-L[0] time:0.083990 => packetid = 79, src = s0
-Load =27
-C[0] time:0.084680 => packetid = 53, src = s0
-L[0] time:0.084702 => packetid = 80, src = s0
-L[1] time:0.085005 => packetid = 52, src = c0
-Load =27
-L[0] time:0.085390 => packetid = 81, src = s0
-Load =28
-L[0] time:0.086542 => packetid = 82, src = s0
-C[0] time:0.086657 => packetid = 54, src = s0
-L[1] time:0.086738 => packetid = 53, src = c0
-Load =28
-C[0] time:0.087948 => packetid = 55, src = s0
-Load =27
-L[0] time:0.088543 => packetid = 83, src = s0
-L[1] time:0.088747 => packetid = 54, src = c0
-L[0] time:0.089512 => packetid = 84, src = s0
-Load =29
-C[0] time:0.089793 => packetid = 56, src = s0
-L[1] time:0.090058 => packetid = 55, src = c0
-Load =28
-L[0] time:0.090888 => packetid = 85, src = s0
-L[0] time:0.090955 => packetid = 86, src = s0
-L[0] time:0.091262 => packetid = 87, src = s0
-C[0] time:0.091624 => packetid = 57, src = s0
-Load =30
-L[1] time:0.091893 => packetid = 56, src = c0
-L[0] time:0.092290 => packetid = 88, src = s0
-Load =31
-L[1] time:0.093707 => packetid = 57, src = c0
-C[0] time:0.093707 => packetid = 58, src = s0
-Load =30
-L[0] time:0.094179 => packetid = 89, src = s0
-L[0] time:0.094383 => packetid = 90, src = s0
-Load =32
-L[0] time:0.095386 => packetid = 91, src = s0
-C[0] time:0.095717 => packetid = 59, src = s0
-L[1] time:0.095783 => packetid = 58, src = c0
-Load =32
-L[0] time:0.096773 => packetid = 92, src = s0
-Load =33
-C[0] time:0.097761 => packetid = 60, src = s0
-L[1] time:0.097785 => packetid = 59, src = c0
-L[0] time:0.098476 => packetid = 93, src = s0
-Load =33
-C[0] time:0.099140 => packetid = 61, src = s0
-Load =32
-L[1] time:0.099864 => packetid = 60, src = c0
-L[0] time:0.100535 => packetid = 94, src = s0
-C[0] time:0.100775 => packetid = 62, src = s0
-Load =32
-L[1] time:0.101232 => packetid = 61, src = c0
-Load =32
-C[0] time:0.101991 => packetid = 63, src = s0
-L[0] time:0.102634 => packetid = 95, src = s0
-L[1] time:0.102904 => packetid = 62, src = c0
-Load =32
-L[0] time:0.103647 => packetid = 96, src = s0
-C[0] time:0.103674 => packetid = 64, src = s0
-L[1] time:0.104120 => packetid = 63, src = c0
-Load =32
-L[0] time:0.104589 => packetid = 97, src = s0
-C[0] time:0.104873 => packetid = 65, src = s0
-Load =32
-L[1] time:0.105808 => packetid = 64, src = c0
-Load =33
-L[0] time:0.106514 => packetid = 98, src = s0
-C[0] time:0.106958 => packetid = 66, src = s0
-L[1] time:0.106958 => packetid = 65, src = c0
-L[0] time:0.107455 => packetid = 99, src = s0
-Load =33
-Load =33
-C[0] time:0.108986 => packetid = 67, src = s0
-L[1] time:0.109017 => packetid = 66, src = c0
-L[0] time:0.109101 => packetid = 100, src = s0
-Load =33
-C[0] time:0.110276 => packetid = 68, src = s0
-L[0] time:0.110489 => packetid = 101, src = s0
-Load =33
-L[1] time:0.111075 => packetid = 67, src = c0
-L[0] time:0.111385 => packetid = 102, src = s0
-Load =34
-C[0] time:0.112362 => packetid = 69, src = s0
-L[1] time:0.112363 => packetid = 68, src = c0
-L[0] time:0.112369 => packetid = 103, src = s0
-L[0] time:0.113000 => packetid = 104, src = s0
-Load =35
-C[0] time:0.114185 => packetid = 70, src = s0
-L[0] time:0.114268 => packetid = 105, src = s0
-Load =35
-L[1] time:0.114492 => packetid = 69, src = c0
-Load =35
-C[0] time:0.115465 => packetid = 71, src = s0
-L[0] time:0.115798 => packetid = 106, src = s0
-L[1] time:0.116254 => packetid = 70, src = c0
-Load =35
-C[0] time:0.116926 => packetid = 72, src = s0
-L[0] time:0.117177 => packetid = 107, src = s0
-L[1] time:0.117557 => packetid = 71, src = c0
-Load =35
-C[0] time:0.118318 => packetid = 73, src = s0
-Load =34
-L[1] time:0.119030 => packetid = 72, src = c0
-L[0] time:0.119277 => packetid = 108, src = s0
-L[0] time:0.119490 => packetid = 109, src = s0
-C[0] time:0.119629 => packetid = 74, src = s0
-Load =35
-L[0] time:0.119947 => packetid = 110, src = s0
-L[1] time:0.120448 => packetid = 73, src = c0
-Load =36
-L[0] time:0.121490 => packetid = 111, src = s0
-C[0] time:0.121688 => packetid = 75, src = s0
-L[1] time:0.121695 => packetid = 74, src = c0
-Load =36
-Load =36
-C[0] time:0.123092 => packetid = 76, src = s0
-L[0] time:0.123101 => packetid = 112, src = s0
-L[0] time:0.123340 => packetid = 113, src = s0
-L[0] time:0.123736 => packetid = 114, src = s0
-L[1] time:0.123798 => packetid = 75, src = c0
-Load =38
-C[0] time:0.125153 => packetid = 77, src = s0
-L[1] time:0.125160 => packetid = 76, src = c0
-Load =37
-L[0] time:0.125691 => packetid = 115, src = s0
-Load =38
-C[0] time:0.126658 => packetid = 78, src = s0
-L[1] time:0.127281 => packetid = 77, src = c0
-L[0] time:0.127426 => packetid = 116, src = s0
-L[0] time:0.127545 => packetid = 117, src = s0
-Load =39
-C[0] time:0.128418 => packetid = 79, src = s0
-Load =38
-L[1] time:0.128773 => packetid = 78, src = c0
-L[0] time:0.129151 => packetid = 118, src = s0
-Load =39
-L[0] time:0.130189 => packetid = 119, src = s0
-C[0] time:0.130326 => packetid = 80, src = s0
-L[1] time:0.130514 => packetid = 79, src = c0
-Load =39
-L[0] time:0.131315 => packetid = 120, src = s0
-L[0] time:0.131836 => packetid = 121, src = s0
-Load =41
-C[0] time:0.132127 => packetid = 81, src = s0
-L[1] time:0.132425 => packetid = 80, src = c0
-Load =40
-L[0] time:0.133842 => packetid = 122, src = s0
-C[0] time:0.134032 => packetid = 82, src = s0
-Load =40
-L[1] time:0.134206 => packetid = 81, src = c0
-L[0] time:0.134253 => packetid = 123, src = s0
-L[0] time:0.134641 => packetid = 124, src = s0
-Load =42
-C[0] time:0.135602 => packetid = 83, src = s0
-L[1] time:0.136163 => packetid = 82, src = c0
-Load =41
-L[0] time:0.136612 => packetid = 125, src = s0
-C[0] time:0.137183 => packetid = 84, src = s0
-Load =41
-L[1] time:0.137718 => packetid = 83, src = c0
-Load =41
-L[0] time:0.138714 => packetid = 126, src = s0
-C[0] time:0.139034 => packetid = 85, src = s0
-L[1] time:0.139323 => packetid = 84, src = c0
-Load =41
-L[0] time:0.140262 => packetid = 127, src = s0
-L[0] time:0.140660 => packetid = 128, src = s0
-C[0] time:0.140739 => packetid = 86, src = s0
-Load =42
-L[1] time:0.141137 => packetid = 85, src = c0
-Load =42
-C[0] time:0.142070 => packetid = 87, src = s0
-L[0] time:0.142625 => packetid = 129, src = s0
-L[1] time:0.142873 => packetid = 86, src = c0
-Load =42
-L[0] time:0.143461 => packetid = 130, src = s0
-C[0] time:0.143785 => packetid = 88, src = s0
-L[0] time:0.143956 => packetid = 131, src = s0
-Load =43
-L[1] time:0.144163 => packetid = 87, src = c0
-L[0] time:0.144977 => packetid = 132, src = s0
-Load =44
-C[0] time:0.145411 => packetid = 89, src = s0
-L[0] time:0.145749 => packetid = 133, src = s0
-L[1] time:0.145889 => packetid = 88, src = c0
-L[0] time:0.146185 => packetid = 134, src = s0
-Load =45
-L[0] time:0.146976 => packetid = 135, src = s0
-C[0] time:0.147457 => packetid = 90, src = s0
-L[1] time:0.147480 => packetid = 89, src = c0
-Load =45
-Load =45
-L[0] time:0.148774 => packetid = 136, src = s0
-L[0] time:0.148846 => packetid = 137, src = s0
-C[0] time:0.149074 => packetid = 91, src = s0
-L[1] time:0.149559 => packetid = 90, src = c0
-Load =46
-L[0] time:0.149893 => packetid = 138, src = s0
-C[0] time:0.150861 => packetid = 92, src = s0
-Load =46
-L[0] time:0.150955 => packetid = 139, src = s0
-L[1] time:0.151204 => packetid = 91, src = c0
-Load =47
-L[0] time:0.152339 => packetid = 140, src = s0
-C[0] time:0.152914 => packetid = 93, src = s0
-L[1] time:0.152932 => packetid = 92, src = c0
-Load =47
-L[0] time:0.153711 => packetid = 141, src = s0
-Load =48
-C[0] time:0.154299 => packetid = 94, src = s0
-L[1] time:0.154976 => packetid = 93, src = c0
-Load =47
-L[0] time:0.155434 => packetid = 142, src = s0
-L[0] time:0.155904 => packetid = 143, src = s0
-C[0] time:0.156226 => packetid = 95, src = s0
-Load =48
-L[1] time:0.156400 => packetid = 94, src = c0
-Load =48
-C[0] time:0.157634 => packetid = 96, src = s0
-L[0] time:0.157866 => packetid = 144, src = s0
-L[1] time:0.158323 => packetid = 95, src = c0
-Load =48
-L[0] time:0.158621 => packetid = 145, src = s0
-C[0] time:0.159564 => packetid = 97, src = s0
-Load =48
-L[1] time:0.159735 => packetid = 96, src = c0
-L[0] time:0.160455 => packetid = 146, src = s0
-Load =49
-C[0] time:0.161082 => packetid = 98, src = s0
-L[0] time:0.161618 => packetid = 147, src = s0
-L[1] time:0.161652 => packetid = 97, src = c0
-Load =49
-C[0] time:0.162323 => packetid = 99, src = s0
-Load =48
-L[1] time:0.163184 => packetid = 98, src = c0
-L[0] time:0.163578 => packetid = 148, src = s0
-Load =49
-C[0] time:0.164102 => packetid = 100, src = s0
-L[1] time:0.164452 => packetid = 99, src = c0
-L[0] time:0.165144 => packetid = 149, src = s0
-Load =49
-C[0] time:0.165971 => packetid = 101, src = s0
-L[0] time:0.165975 => packetid = 150, src = s0
-L[1] time:0.166198 => packetid = 100, src = c0
-Load =49
-C[0] time:0.167247 => packetid = 102, src = s0
-Load =48
-L[0] time:0.167469 => packetid = 151, src = s0
-L[1] time:0.168036 => packetid = 101, src = c0
-Load =49
-L[0] time:0.168694 => packetid = 152, src = s0
-C[0] time:0.169300 => packetid = 103, src = s0
-L[1] time:0.169311 => packetid = 102, src = c0
-Load =49
-L[0] time:0.169782 => packetid = 153, src = s0
-L[0] time:0.170369 => packetid = 154, src = s0
-Load =51
-C[0] time:0.170734 => packetid = 104, src = s0
-L[1] time:0.171364 => packetid = 103, src = c0
-Load =50
-L[0] time:0.171839 => packetid = 155, src = s0
-C[0] time:0.172519 => packetid = 105, src = s0
-Load =50
-L[1] time:0.172798 => packetid = 104, src = c0
-L[0] time:0.173235 => packetid = 156, src = s0
-Load =51
-C[0] time:0.174548 => packetid = 106, src = s0
-L[1] time:0.174593 => packetid = 105, src = c0
-Load =50
-L[0] time:0.174918 => packetid = 157, src = s0
-L[0] time:0.175398 => packetid = 158, src = s0
-Load =52
-C[0] time:0.175953 => packetid = 107, src = s0
-L[1] time:0.176653 => packetid = 106, src = c0
-Load =51
-C[0] time:0.177013 => packetid = 108, src = s0
-L[0] time:0.177219 => packetid = 159, src = s0
-Load =51
-L[1] time:0.178046 => packetid = 107, src = c0
-L[0] time:0.178695 => packetid = 160, src = s0
-Load =52
-C[0] time:0.179082 => packetid = 109, src = s0
-L[1] time:0.179088 => packetid = 108, src = c0
-L[0] time:0.179643 => packetid = 161, src = s0
-Load =52
-C[0] time:0.180464 => packetid = 110, src = s0
-L[0] time:0.180884 => packetid = 162, src = s0
-L[1] time:0.181184 => packetid = 109, src = c0
-Load =52
-C[0] time:0.182180 => packetid = 111, src = s0
-L[0] time:0.182185 => packetid = 163, src = s0
-Load =52
-L[1] time:0.182567 => packetid = 110, src = c0
-L[0] time:0.183352 => packetid = 164, src = s0
-Load =53
-C[0] time:0.183628 => packetid = 112, src = s0
-L[1] time:0.184315 => packetid = 111, src = c0
-Load =52
-L[0] time:0.184890 => packetid = 165, src = s0
-L[0] time:0.185388 => packetid = 166, src = s0
-Load =54
-C[0] time:0.185678 => packetid = 113, src = s0
-L[1] time:0.185697 => packetid = 112, src = c0
-L[0] time:0.186405 => packetid = 167, src = s0
-Load =54
-C[0] time:0.187466 => packetid = 114, src = s0
-L[0] time:0.187633 => packetid = 168, src = s0
-Load =54
-L[1] time:0.187743 => packetid = 113, src = c0
-L[0] time:0.188044 => packetid = 169, src = s0
-L[0] time:0.188735 => packetid = 170, src = s0
-Load =56
-C[0] time:0.188848 => packetid = 115, src = s0
-L[1] time:0.189559 => packetid = 114, src = c0
-Load =55
-L[0] time:0.190418 => packetid = 171, src = s0
-L[0] time:0.190630 => packetid = 172, src = s0
-L[0] time:0.190732 => packetid = 173, src = s0
-C[0] time:0.190742 => packetid = 116, src = s0
-L[1] time:0.190939 => packetid = 115, src = c0
-Load =57
-Load =57
-L[0] time:0.192060 => packetid = 174, src = s0
-C[0] time:0.192126 => packetid = 117, src = s0
-L[1] time:0.192847 => packetid = 116, src = c0
-Load =57
-L[0] time:0.193549 => packetid = 175, src = s0
-C[0] time:0.193739 => packetid = 118, src = s0
-L[0] time:0.193846 => packetid = 176, src = s0
-Load =58
-L[1] time:0.194188 => packetid = 117, src = c0
-L[0] time:0.194276 => packetid = 177, src = s0
-L[0] time:0.194644 => packetid = 178, src = s0
-Load =60
-C[0] time:0.195581 => packetid = 119, src = s0
-L[1] time:0.195836 => packetid = 118, src = c0
-L[0] time:0.196041 => packetid = 179, src = s0
-Load =60
-L[0] time:0.196870 => packetid = 180, src = s0
-C[0] time:0.196915 => packetid = 120, src = s0
-L[0] time:0.197122 => packetid = 181, src = s0
-Load =61
-L[1] time:0.197679 => packetid = 119, src = c0
-C[0] time:0.198214 => packetid = 121, src = s0
-Load =60
-L[1] time:0.199005 => packetid = 120, src = c0
-L[0] time:0.199022 => packetid = 182, src = s0
-Load =61
-C[0] time:0.199711 => packetid = 122, src = s0
-L[1] time:0.200312 => packetid = 121, src = c0
-L[0] time:0.200540 => packetid = 183, src = s0
-Load =61
-C[0] time:0.200816 => packetid = 123, src = s0
-L[1] time:0.201833 => packetid = 122, src = c0
-Load =60
-L[0] time:0.202644 => packetid = 184, src = s0
-C[0] time:0.202775 => packetid = 124, src = s0
-L[1] time:0.202900 => packetid = 123, src = c0
-Load =60
-Load =60
-C[0] time:0.204249 => packetid = 125, src = s0
-L[0] time:0.204336 => packetid = 185, src = s0
-L[1] time:0.204840 => packetid = 124, src = c0
-Load =60
-C[0] time:0.205383 => packetid = 126, src = s0
-Load =59
-L[0] time:0.206211 => packetid = 186, src = s0
-L[1] time:0.206340 => packetid = 125, src = c0
-Load =60
-C[0] time:0.207261 => packetid = 127, src = s0
-L[1] time:0.207474 => packetid = 126, src = c0
-L[0] time:0.208183 => packetid = 187, src = s0
-Load =60
-L[0] time:0.208753 => packetid = 188, src = s0
-L[0] time:0.208819 => packetid = 189, src = s0
-C[0] time:0.209034 => packetid = 128, src = s0
-L[1] time:0.209359 => packetid = 127, src = c0
-Load =61
-Load =61
-C[0] time:0.210515 => packetid = 129, src = s0
-L[0] time:0.210889 => packetid = 190, src = s0
-L[1] time:0.211125 => packetid = 128, src = c0
-L[0] time:0.211439 => packetid = 191, src = s0
-Load =62
-C[0] time:0.212367 => packetid = 130, src = s0
-L[1] time:0.212599 => packetid = 129, src = c0
-Load =61
-L[0] time:0.213099 => packetid = 192, src = s0
-Load =62
-C[0] time:0.213755 => packetid = 131, src = s0
-L[1] time:0.214459 => packetid = 130, src = c0
-L[0] time:0.214544 => packetid = 193, src = s0
-Load =62
-L[0] time:0.215193 => packetid = 194, src = s0
-C[0] time:0.215415 => packetid = 132, src = s0
-L[0] time:0.215431 => packetid = 195, src = s0
-L[1] time:0.215852 => packetid = 131, src = c0
-Load =63
-L[0] time:0.215991 => packetid = 196, src = s0
-L[0] time:0.216476 => packetid = 197, src = s0
-C[0] time:0.216785 => packetid = 133, src = s0
-Load =64
-L[1] time:0.217547 => packetid = 132, src = c0
-C[0] time:0.218148 => packetid = 134, src = s0
-Load =64
-L[0] time:0.218154 => packetid = 198, src = s0
-L[0] time:0.218816 => packetid = 199, src = s0
-L[1] time:0.218900 => packetid = 133, src = c0
-Load =65
-C[0] time:0.220074 => packetid = 135, src = s0
-L[1] time:0.220280 => packetid = 134, src = c0
-Load =64
-Load =65
-C[0] time:0.221847 => packetid = 136, src = s0
-L[1] time:0.222134 => packetid = 135, src = c0
-Load =64
-C[0] time:0.223477 => packetid = 137, src = s0
-Load =63
-L[1] time:0.223927 => packetid = 136, src = c0
-Load =63
-C[0] time:0.224966 => packetid = 138, src = s0
-L[1] time:0.225557 => packetid = 137, src = c0
-Load =62
-C[0] time:0.226316 => packetid = 139, src = s0
-Load =61
-L[1] time:0.227046 => packetid = 138, src = c0
-C[0] time:0.227716 => packetid = 140, src = s0
-Load =60
-L[1] time:0.228385 => packetid = 139, src = c0
-Load =60
-C[0] time:0.229614 => packetid = 141, src = s0
-L[1] time:0.229788 => packetid = 140, src = c0
-Load =59
-Load =59
-C[0] time:0.231413 => packetid = 142, src = s0
-L[1] time:0.231693 => packetid = 141, src = c0
-Load =58
-C[0] time:0.232859 => packetid = 143, src = s0
-Load =57
-L[1] time:0.233494 => packetid = 142, src = c0
-C[0] time:0.234241 => packetid = 144, src = s0
-Load =56
-L[1] time:0.234939 => packetid = 143, src = c0
-Load =56
-C[0] time:0.235962 => packetid = 145, src = s0
-L[1] time:0.236306 => packetid = 144, src = c0
-Load =55
-Load =55
-C[0] time:0.237677 => packetid = 146, src = s0
-L[1] time:0.238031 => packetid = 145, src = c0
-Load =54
-C[0] time:0.238853 => packetid = 147, src = s0
-L[1] time:0.239754 => packetid = 146, src = c0
-Load =53
-C[0] time:0.240275 => packetid = 148, src = s0
-Load =52
-L[1] time:0.240909 => packetid = 147, src = c0
-C[0] time:0.241815 => packetid = 149, src = s0
-Load =51
-L[1] time:0.242348 => packetid = 148, src = c0
-Load =51
-C[0] time:0.243411 => packetid = 150, src = s0
-L[1] time:0.243881 => packetid = 149, src = c0
-Load =50
-C[0] time:0.244738 => packetid = 151, src = s0
-Load =49
-L[1] time:0.245488 => packetid = 150, src = c0
-Load =49
-C[0] time:0.246730 => packetid = 152, src = s0
-L[1] time:0.246793 => packetid = 151, src = c0
-Load =48
-Load =48
-C[0] time:0.248764 => packetid = 153, src = s0
-L[1] time:0.248765 => packetid = 152, src = c0
-Load =47
-C[0] time:0.250359 => packetid = 154, src = s0
-Load =46
-L[1] time:0.250831 => packetid = 153, src = c0
-Load =46
-C[0] time:0.252327 => packetid = 155, src = s0
-L[1] time:0.252431 => packetid = 154, src = c0
-Load =45
-Load =45
-C[0] time:0.254011 => packetid = 156, src = s0
-L[1] time:0.254388 => packetid = 155, src = c0
-Load =44
-C[0] time:0.255725 => packetid = 157, src = s0
-Load =43
-L[1] time:0.256065 => packetid = 156, src = c0
-Load =43
-C[0] time:0.257252 => packetid = 158, src = s0
-L[1] time:0.257790 => packetid = 157, src = c0
-Load =42
-C[0] time:0.258662 => packetid = 159, src = s0
-Load =41
-L[1] time:0.259318 => packetid = 158, src = c0
-Load =41
-C[0] time:0.260685 => packetid = 160, src = s0
-L[1] time:0.260690 => packetid = 159, src = c0
-Load =40
-C[0] time:0.262216 => packetid = 161, src = s0
-Load =39
-L[1] time:0.262742 => packetid = 160, src = c0
-Load =39
-C[0] time:0.263471 => packetid = 162, src = s0
-L[1] time:0.264272 => packetid = 161, src = c0
-Load =38
-C[0] time:0.265043 => packetid = 163, src = s0
-L[1] time:0.265528 => packetid = 162, src = c0
-Load =37
-C[0] time:0.266492 => packetid = 164, src = s0
-Load =36
-L[1] time:0.267099 => packetid = 163, src = c0
-C[0] time:0.267579 => packetid = 165, src = s0
-Load =35
-L[1] time:0.268553 => packetid = 164, src = c0
-Load =35
-C[0] time:0.268817 => packetid = 166, src = s0
-L[1] time:0.269636 => packetid = 165, src = c0
-Load =34
-C[0] time:0.270651 => packetid = 167, src = s0
-L[1] time:0.270873 => packetid = 166, src = c0
-Load =33
-Load =33
-C[0] time:0.272313 => packetid = 168, src = s0
-L[1] time:0.272732 => packetid = 167, src = c0
-Load =32
-C[0] time:0.273675 => packetid = 169, src = s0
-Load =31
-L[1] time:0.274394 => packetid = 168, src = c0
-C[0] time:0.274811 => packetid = 170, src = s0
-Load =30
-L[1] time:0.275755 => packetid = 169, src = c0
-Load =30
-C[0] time:0.276503 => packetid = 171, src = s0
-L[1] time:0.276890 => packetid = 170, src = c0
-Load =29
-C[0] time:0.277681 => packetid = 172, src = s0
-Load =28
-L[1] time:0.278583 => packetid = 171, src = c0
-C[0] time:0.279229 => packetid = 173, src = s0
-Load =27
-L[1] time:0.279761 => packetid = 172, src = c0
-Load =27
-C[0] time:0.280950 => packetid = 174, src = s0
-L[1] time:0.281309 => packetid = 173, src = c0
-Load =26
-C[0] time:0.282108 => packetid = 175, src = s0
-Load =25
-L[1] time:0.283029 => packetid = 174, src = c0
-C[0] time:0.283309 => packetid = 176, src = s0
-Load =24
-L[1] time:0.284188 => packetid = 175, src = c0
-Load =24
-C[0] time:0.284656 => packetid = 177, src = s0
-L[1] time:0.285388 => packetid = 176, src = c0
-Load =23
-C[0] time:0.285907 => packetid = 178, src = s0
-L[1] time:0.286737 => packetid = 177, src = c0
-Load =22
-C[0] time:0.287144 => packetid = 179, src = s0
-Load =21
-L[1] time:0.287987 => packetid = 178, src = c0
-Load =21
-C[0] time:0.288931 => packetid = 180, src = s0
-L[1] time:0.289225 => packetid = 179, src = c0
-Load =20
-C[0] time:0.290695 => packetid = 181, src = s0
-Load =19
-L[1] time:0.291012 => packetid = 180, src = c0
-Load =19
-C[0] time:0.292175 => packetid = 182, src = s0
-L[1] time:0.292776 => packetid = 181, src = c0
-Load =18
-C[0] time:0.293885 => packetid = 183, src = s0
-Load =17
-L[1] time:0.294242 => packetid = 182, src = c0
-C[0] time:0.295272 => packetid = 184, src = s0
-Load =16
-L[1] time:0.295966 => packetid = 183, src = c0
-Load =16
-C[0] time:0.297236 => packetid = 185, src = s0
-L[1] time:0.297358 => packetid = 184, src = c0
-Load =15
-Load =15
-C[0] time:0.298499 => packetid = 186, src = s0
-L[1] time:0.299316 => packetid = 185, src = c0
-Load =14
-C[0] time:0.300475 => packetid = 187, src = s0
-L[1] time:0.300581 => packetid = 186, src = c0
-Load =13
-Load =13
-C[0] time:0.302072 => packetid = 188, src = s0
-L[1] time:0.302558 => packetid = 187, src = c0
-Load =12
-C[0] time:0.303476 => packetid = 189, src = s0
-Load =11
-L[1] time:0.304152 => packetid = 188, src = c0
-Load =11
-C[0] time:0.305470 => packetid = 190, src = s0
-L[1] time:0.305555 => packetid = 189, src = c0
-Load =10
-C[0] time:0.306700 => packetid = 191, src = s0
-Load =9
-L[1] time:0.307550 => packetid = 190, src = c0
-Load =9
-C[0] time:0.308553 => packetid = 192, src = s0
-L[1] time:0.308780 => packetid = 191, src = c0
-Load =8
-C[0] time:0.309714 => packetid = 193, src = s0
-Load =7
-L[1] time:0.310633 => packetid = 192, src = c0
-Load =7
-C[0] time:0.311439 => packetid = 194, src = s0
-L[1] time:0.311793 => packetid = 193, src = c0
-Load =6
-C[0] time:0.312652 => packetid = 195, src = s0
-L[1] time:0.313519 => packetid = 194, src = c0
-Load =5
-C[0] time:0.313831 => packetid = 196, src = s0
-Load =4
-L[1] time:0.314713 => packetid = 195, src = c0
-C[0] time:0.315421 => packetid = 197, src = s0
-Load =3
-L[1] time:0.315910 => packetid = 196, src = c0
-Load =3
-C[0] time:0.317413 => packetid = 198, src = s0
-L[1] time:0.317475 => packetid = 197, src = c0
-Load =2
-C[0] time:0.318892 => packetid = 199, src = s0
-Load =1
-L[1] time:0.319470 => packetid = 198, src = c0
-Load =1
-L[1] time:0.320954 => packetid = 199, src = c0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-Load =0
-pkt_drop cnt = 0
-gnuplot -p -e "load \"gnuplot_script\""
+-----------------------------------------
+Forwading Table of switch s0
+c0->l0
+s1->l2
+s2->l7
+Forwading Table of switch s1
+s0->l3
+s2->l5
+s3->l28
+Forwading Table of switch s2
+s0->l6
+s1->l4
+s3->l8
+s4->l10
+s5->l12
+Forwading Table of switch s3
+s1->l29
+s2->l9
+s5->l15
+Forwading Table of switch s4
+s2->l11
+s6->l20
+Forwading Table of switch s5
+c1->l16
+s2->l13
+s3->l14
+s6->l19
+s7->l26
+Forwading Table of switch s6
+s4->l21
+s5->l18
+s8->l22
+Forwading Table of switch s7
+s5->l27
+s8->l25
+Forwading Table of switch s8
+s6->l23
+s7->l24
+-----------------------------------------
+L[2] time:1.000926 => packetid = 0, src = s0, dst = 
+L[7] time:1.000936 => packetid = 0, src = s0, dst = 
+S[2] time:1.001212 => packetid = 0, src = s0, dst = 
+Routing table updated
+Forwading Table of switch s2
+c0->l6
+s0->l6
+s1->l4
+s3->l8
+s4->l10
+s5->l12
+L[10] time:1.001269 => packetid = 0, src = s2, dst = 
+L[4] time:1.001278 => packetid = 0, src = s2, dst = 
+S[1] time:1.001302 => packetid = 0, src = s0, dst = 
+Routing table updated
+Forwading Table of switch s1
+c0->l3
+s0->l3
+s2->l5
+s3->l28
+L[28] time:1.001343 => packetid = 0, src = s1, dst = 
+L[12] time:1.001344 => packetid = 0, src = s2, dst = 
+L[6] time:1.001350 => packetid = 0, src = s2, dst = 
+L[5] time:1.001351 => packetid = 0, src = s1, dst = 
+L[8] time:1.001372 => packetid = 0, src = s2, dst = 
+L[3] time:1.001396 => packetid = 0, src = s1, dst = 
+S[4] time:1.003396 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s4
+c0->l11
+s0->l11
+s1->l11
+s2->l11
+s3->l11
+s5->l11
+s6->l20
+L[20] time:1.003433 => packetid = 0, src = s4, dst = 
+L[11] time:1.003441 => packetid = 0, src = s4, dst = 
+S[1] time:1.003464 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s1
+c0->l3
+s0->l3
+s2->l5
+s3->l28
+s4->l5
+s5->l5
+L[3] time:1.003486 => packetid = 0, src = s1, dst = 
+L[5] time:1.003492 => packetid = 0, src = s1, dst = 
+L[28] time:1.003498 => packetid = 0, src = s1, dst = 
+S[5] time:1.003739 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s5
+c0->l13
+c1->l16
+s0->l13
+s1->l13
+s2->l13
+s3->l14
+s4->l13
+s6->l19
+s7->l26
+L[26] time:1.003785 => packetid = 0, src = s5, dst = 
+L[13] time:1.003797 => packetid = 0, src = s5, dst = 
+L[14] time:1.003805 => packetid = 0, src = s5, dst = 
+L[19] time:1.003812 => packetid = 0, src = s5, dst = 
+S[0] time:1.003904 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s0
+c0->l0
+s1->l2
+s2->l7
+s3->l7
+s4->l7
+s5->l7
+S[0] time:1.003929 => packetid = 0, src = s1, dst = 
+S[3] time:1.003935 => packetid = 0, src = s2, dst = 
+L[2] time:1.003936 => packetid = 0, src = s0, dst = 
+L[7] time:1.003943 => packetid = 0, src = s0, dst = 
+Routing table updated
+Forwading Table of switch s3
+c0->l9
+s0->l9
+s1->l29
+s2->l9
+s4->l9
+s5->l15
+S[3] time:1.003962 => packetid = 0, src = s1, dst = 
+L[9] time:1.003976 => packetid = 0, src = s3, dst = 
+L[15] time:1.003995 => packetid = 0, src = s3, dst = 
+L[29] time:1.004007 => packetid = 0, src = s3, dst = 
+S[2] time:1.004437 => packetid = 0, src = s1, dst = 
+S[2] time:1.005504 => packetid = 0, src = s4, dst = 
+Routing table updated
+Forwading Table of switch s2
+c0->l6
+s0->l6
+s1->l4
+s3->l8
+s4->l10
+s5->l12
+s6->l10
+L[10] time:1.005524 => packetid = 0, src = s2, dst = 
+L[4] time:1.005530 => packetid = 0, src = s2, dst = 
+S[2] time:1.005565 => packetid = 0, src = s1, dst = 
+L[12] time:1.005576 => packetid = 0, src = s2, dst = 
+L[6] time:1.005581 => packetid = 0, src = s2, dst = 
+L[8] time:1.005589 => packetid = 0, src = s2, dst = 
+S[0] time:1.006025 => packetid = 0, src = s1, dst = 
+S[3] time:1.006032 => packetid = 0, src = s1, dst = 
+S[3] time:1.006036 => packetid = 0, src = s5, dst = 
+Routing table updated
+Forwading Table of switch s3
+c0->l9
+c1->l15
+s0->l9
+s1->l29
+s2->l9
+s4->l9
+s5->l15
+s6->l15
+s7->l15
+L[9] time:1.006073 => packetid = 0, src = s3, dst = 
+L[15] time:1.006091 => packetid = 0, src = s3, dst = 
+L[29] time:1.006108 => packetid = 0, src = s3, dst = 
+S[7] time:1.006383 => packetid = 0, src = s5, dst = 
+Routing table updated
+Forwading Table of switch s7
+c0->l27
+c1->l27
+s0->l27
+s1->l27
+s2->l27
+s3->l27
+s4->l27
+s5->l27
+s6->l27
+s8->l25
+S[6] time:1.006463 => packetid = 0, src = s4, dst = 
+Routing table updated
+Forwading Table of switch s6
+c0->l21
+s0->l21
+s1->l21
+s2->l21
+s3->l21
+s4->l21
+s5->l18
+s8->l22
+S[6] time:1.006491 => packetid = 0, src = s5, dst = 
+L[22] time:1.006501 => packetid = 0, src = s6, dst = 
+Routing table updated
+Forwading Table of switch s6
+c0->l21
+c1->l18
+s0->l21
+s1->l21
+s2->l21
+s3->l18
+s4->l21
+s5->l18
+s7->l18
+s8->l22
+L[25] time:1.006514 => packetid = 0, src = s7, dst = 
+L[21] time:1.006557 => packetid = 0, src = s6, dst = 
+L[27] time:1.006567 => packetid = 0, src = s7, dst = 
+L[18] time:1.006583 => packetid = 0, src = s6, dst = 
+S[2] time:1.006619 => packetid = 0, src = s5, dst = 
+S[1] time:1.006631 => packetid = 0, src = s0, dst = 
+S[1] time:1.006635 => packetid = 0, src = s3, dst = 
+Routing table updated
+Forwading Table of switch s1
+c0->l3
+c1->l28
+s0->l3
+s2->l5
+s3->l28
+s4->l5
+s5->l5
+s6->l28
+s7->l28
+Routing table updated
+Forwading Table of switch s2
+c0->l6
+c1->l12
+s0->l6
+s1->l4
+s3->l8
+s4->l10
+s5->l12
+s6->l10
+s7->l12
+S[2] time:1.006672 => packetid = 0, src = s0, dst = 
+S[2] time:1.006676 => packetid = 0, src = s3, dst = 
+L[5] time:1.006685 => packetid = 0, src = s1, dst = 
+S[5] time:1.006893 => packetid = 0, src = s3, dst = 
+L[12] time:1.007555 => packetid = 0, src = s2, dst = 
+L[6] time:1.007573 => packetid = 0, src = s2, dst = 
+L[8] time:1.007587 => packetid = 0, src = s2, dst = 
+S[5] time:1.008100 => packetid = 0, src = s2, dst = 
+S[5] time:1.008115 => packetid = 0, src = s3, dst = 
+S[0] time:1.008124 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s0
+c0->l0
+c1->l7
+s1->l2
+s2->l7
+s3->l7
+s4->l7
+s5->l7
+s6->l7
+s7->l7
+S[3] time:1.008152 => packetid = 0, src = s2, dst = 
+L[2] time:1.008154 => packetid = 0, src = s0, dst = 
+L[7] time:1.008162 => packetid = 0, src = s0, dst = 
+L[22] time:1.008520 => packetid = 0, src = s6, dst = 
+L[3] time:1.008529 => packetid = 0, src = s1, dst = 
+L[10] time:1.008534 => packetid = 0, src = s2, dst = 
+L[21] time:1.008554 => packetid = 0, src = s6, dst = 
+L[4] time:1.008556 => packetid = 0, src = s2, dst = 
+L[28] time:1.008564 => packetid = 0, src = s1, dst = 
+L[18] time:1.008577 => packetid = 0, src = s6, dst = 
+S[4] time:1.008681 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s4
+c0->l11
+c1->l11
+s0->l11
+s1->l11
+s2->l11
+s3->l11
+s5->l11
+s6->l20
+s7->l11
+S[4] time:1.008703 => packetid = 0, src = s6, dst = 
+Routing table updated
+Forwading Table of switch s4
+c0->l11
+c1->l11
+s0->l11
+s1->l11
+s2->l11
+s3->l11
+s5->l11
+s6->l20
+s7->l11
+s8->l20
+S[4] time:1.008720 => packetid = 0, src = s6, dst = 
+L[11] time:1.008728 => packetid = 0, src = s4, dst = 
+L[20] time:1.008723 => packetid = 0, src = s4, dst = 
+S[4] time:1.008735 => packetid = 0, src = s2, dst = 
+S[1] time:1.008742 => packetid = 0, src = s3, dst = 
+S[1] time:1.008748 => packetid = 0, src = s2, dst = 
+S[1] time:1.008753 => packetid = 0, src = s2, dst = 
+S[2] time:1.008802 => packetid = 0, src = s3, dst = 
+S[2] time:1.008808 => packetid = 0, src = s1, dst = 
+S[8] time:1.009148 => packetid = 0, src = s6, dst = 
+Routing table updated
+Forwading Table of switch s8
+c0->l23
+c1->l23
+s0->l23
+s1->l23
+s2->l23
+s3->l23
+s4->l23
+s5->l23
+s6->l23
+s7->l24
+S[8] time:1.009190 => packetid = 0, src = s6, dst = 
+S[8] time:1.009196 => packetid = 0, src = s7, dst = 
+S[3] time:1.009208 => packetid = 0, src = s1, dst = 
+L[23] time:1.009213 => packetid = 0, src = s8, dst = 
+S[3] time:1.009214 => packetid = 0, src = s2, dst = 
+S[0] time:1.009223 => packetid = 0, src = s1, dst = 
+S[0] time:1.009229 => packetid = 0, src = s2, dst = 
+S[5] time:1.009236 => packetid = 0, src = s7, dst = 
+Routing table updated
+Forwading Table of switch s5
+c0->l13
+c1->l16
+s0->l13
+s1->l13
+s2->l13
+s3->l14
+s4->l13
+s6->l19
+s7->l26
+s8->l26
+S[5] time:1.009255 => packetid = 0, src = s6, dst = 
+S[5] time:1.009261 => packetid = 0, src = s6, dst = 
+L[19] time:1.009264 => packetid = 0, src = s5, dst = 
+S[5] time:1.009266 => packetid = 0, src = s2, dst = 
+L[26] time:1.009278 => packetid = 0, src = s5, dst = 
+L[13] time:1.009316 => packetid = 0, src = s5, dst = 
+L[14] time:1.009324 => packetid = 0, src = s5, dst = 
+L[20] time:1.010766 => packetid = 0, src = s4, dst = 
+L[11] time:1.010778 => packetid = 0, src = s4, dst = 
+S[1] time:1.010814 => packetid = 0, src = s0, dst = 
+L[24] time:1.012056 => packetid = 0, src = s8, dst = 
+S[2] time:1.010883 => packetid = 0, src = s0, dst = 
+S[2] time:1.012086 => packetid = 0, src = s4, dst = 
+Routing table updated
+Forwading Table of switch s2
+c0->l6
+c1->l12
+s0->l6
+s1->l4
+s3->l8
+s4->l10
+s5->l12
+s6->l10
+s7->l12
+s8->l10
+S[2] time:1.012112 => packetid = 0, src = s5, dst = 
+S[2] time:1.012118 => packetid = 0, src = s4, dst = 
+S[7] time:1.011597 => packetid = 0, src = s5, dst = 
+S[7] time:1.012134 => packetid = 0, src = s8, dst = 
+L[10] time:1.012141 => packetid = 0, src = s2, dst = 
+S[6] time:1.011732 => packetid = 0, src = s4, dst = 
+L[12] time:1.012148 => packetid = 0, src = s2, dst = 
+L[6] time:1.012157 => packetid = 0, src = s2, dst = 
+S[6] time:1.012158 => packetid = 0, src = s8, dst = 
+S[6] time:1.012166 => packetid = 0, src = s5, dst = 
+S[6] time:1.012172 => packetid = 0, src = s4, dst = 
+L[8] time:1.012176 => packetid = 0, src = s2, dst = 
+L[4] time:1.012185 => packetid = 0, src = s2, dst = 
+S[3] time:1.012382 => packetid = 0, src = s5, dst = 
+Routing table updated
+Forwading Table of switch s3
+c0->l9
+c1->l15
+s0->l9
+s1->l29
+s2->l9
+s4->l9
+s5->l15
+s6->l15
+s7->l15
+s8->l15
+L[29] time:1.012418 => packetid = 0, src = s3, dst = 
+L[9] time:1.012422 => packetid = 0, src = s3, dst = 
+L[15] time:1.012463 => packetid = 0, src = s3, dst = 
+S[1] time:1.014206 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s1
+c0->l3
+c1->l28
+s0->l3
+s2->l5
+s3->l28
+s4->l5
+s5->l5
+s6->l28
+s7->l28
+s8->l5
+L[5] time:1.014244 => packetid = 0, src = s1, dst = 
+L[3] time:1.014271 => packetid = 0, src = s1, dst = 
+L[28] time:1.014285 => packetid = 0, src = s1, dst = 
+S[0] time:1.014453 => packetid = 0, src = s2, dst = 
+Routing table updated
+Forwading Table of switch s0
+c0->l0
+c1->l7
+s1->l2
+s2->l7
+s3->l7
+s4->l7
+s5->l7
+s6->l7
+s7->l7
+s8->l7
+S[3] time:1.014486 => packetid = 0, src = s2, dst = 
+L[7] time:1.014517 => packetid = 0, src = s0, dst = 
+L[2] time:1.014533 => packetid = 0, src = s0, dst = 
+S[5] time:1.014562 => packetid = 0, src = s2, dst = 
+S[5] time:1.014568 => packetid = 0, src = s3, dst = 
+S[4] time:1.015024 => packetid = 0, src = s2, dst = 
+S[1] time:1.015289 => packetid = 0, src = s3, dst = 
+S[2] time:1.015297 => packetid = 0, src = s3, dst = 
+S[2] time:1.016333 => packetid = 0, src = s1, dst = 
+S[0] time:1.016540 => packetid = 0, src = s1, dst = 
+S[3] time:1.016615 => packetid = 0, src = s1, dst = 
+S[1] time:1.017387 => packetid = 0, src = s0, dst = 
+S[2] time:1.017396 => packetid = 0, src = s0, dst = 
+Final routing table at 21.001087.
+-----------------------------------------
+Forwading Table of switch s0
+c0->l0
+c1->l7
+s1->l2
+s2->l7
+s3->l7
+s4->l7
+s5->l7
+s6->l7
+s7->l7
+s8->l7
+Distance Vector Table for switch s0
+dst = c0, linkid = 0, hop_count = 1
+dst = s1, linkid = 2, hop_count = 1
+dst = s2, linkid = 7, hop_count = 1
+dst = s3, linkid = 7, hop_count = 2
+dst = s4, linkid = 7, hop_count = 2
+dst = s5, linkid = 7, hop_count = 2
+dst = s6, linkid = 7, hop_count = 3
+dst = c1, linkid = 7, hop_count = 3
+dst = s7, linkid = 7, hop_count = 3
+dst = s8, linkid = 7, hop_count = 4
+Forwading Table of switch s1
+c0->l3
+c1->l28
+s0->l3
+s2->l5
+s3->l28
+s4->l5
+s5->l5
+s6->l28
+s7->l28
+s8->l5
+Distance Vector Table for switch s1
+dst = s0, linkid = 3, hop_count = 1
+dst = s2, linkid = 5, hop_count = 1
+dst = s3, linkid = 28, hop_count = 1
+dst = c0, linkid = 3, hop_count = 2
+dst = s4, linkid = 5, hop_count = 2
+dst = s5, linkid = 5, hop_count = 2
+dst = c1, linkid = 28, hop_count = 3
+dst = s6, linkid = 28, hop_count = 3
+dst = s7, linkid = 28, hop_count = 3
+dst = s8, linkid = 5, hop_count = 4
+Forwading Table of switch s2
+c0->l6
+c1->l12
+s0->l6
+s1->l4
+s3->l8
+s4->l10
+s5->l12
+s6->l10
+s7->l12
+s8->l10
+Distance Vector Table for switch s2
+dst = s1, linkid = 4, hop_count = 1
+dst = s0, linkid = 6, hop_count = 1
+dst = s3, linkid = 8, hop_count = 1
+dst = s4, linkid = 10, hop_count = 1
+dst = s5, linkid = 12, hop_count = 1
+dst = c0, linkid = 6, hop_count = 2
+dst = s6, linkid = 10, hop_count = 2
+dst = c1, linkid = 12, hop_count = 2
+dst = s7, linkid = 12, hop_count = 2
+dst = s8, linkid = 10, hop_count = 3
+Forwading Table of switch s3
+c0->l9
+c1->l15
+s0->l9
+s1->l29
+s2->l9
+s4->l9
+s5->l15
+s6->l15
+s7->l15
+s8->l15
+Distance Vector Table for switch s3
+dst = s2, linkid = 9, hop_count = 1
+dst = s5, linkid = 15, hop_count = 1
+dst = s1, linkid = 29, hop_count = 1
+dst = s0, linkid = 9, hop_count = 2
+dst = s4, linkid = 9, hop_count = 2
+dst = c0, linkid = 9, hop_count = 3
+dst = c1, linkid = 15, hop_count = 2
+dst = s6, linkid = 15, hop_count = 2
+dst = s7, linkid = 15, hop_count = 2
+dst = s8, linkid = 15, hop_count = 3
+Forwading Table of switch s4
+c0->l11
+c1->l11
+s0->l11
+s1->l11
+s2->l11
+s3->l11
+s5->l11
+s6->l20
+s7->l11
+s8->l20
+Distance Vector Table for switch s4
+dst = s2, linkid = 11, hop_count = 1
+dst = s6, linkid = 20, hop_count = 1
+dst = s1, linkid = 11, hop_count = 2
+dst = s0, linkid = 11, hop_count = 2
+dst = s3, linkid = 11, hop_count = 2
+dst = s5, linkid = 11, hop_count = 2
+dst = c0, linkid = 11, hop_count = 3
+dst = c1, linkid = 11, hop_count = 3
+dst = s7, linkid = 11, hop_count = 3
+dst = s8, linkid = 20, hop_count = 2
+Forwading Table of switch s5
+c0->l13
+c1->l16
+s0->l13
+s1->l13
+s2->l13
+s3->l14
+s4->l13
+s6->l19
+s7->l26
+s8->l26
+Distance Vector Table for switch s5
+dst = s2, linkid = 13, hop_count = 1
+dst = s3, linkid = 14, hop_count = 1
+dst = c1, linkid = 16, hop_count = 1
+dst = s6, linkid = 19, hop_count = 1
+dst = s7, linkid = 26, hop_count = 1
+dst = s1, linkid = 13, hop_count = 2
+dst = s0, linkid = 13, hop_count = 2
+dst = s4, linkid = 13, hop_count = 2
+dst = c0, linkid = 13, hop_count = 3
+dst = s8, linkid = 26, hop_count = 2
+Forwading Table of switch s6
+c0->l21
+c1->l18
+s0->l21
+s1->l21
+s2->l21
+s3->l18
+s4->l21
+s5->l18
+s7->l18
+s8->l22
+Distance Vector Table for switch s6
+dst = s5, linkid = 18, hop_count = 1
+dst = s4, linkid = 21, hop_count = 1
+dst = s8, linkid = 22, hop_count = 1
+dst = s2, linkid = 21, hop_count = 2
+dst = s1, linkid = 21, hop_count = 3
+dst = s0, linkid = 21, hop_count = 3
+dst = s3, linkid = 18, hop_count = 2
+dst = c0, linkid = 21, hop_count = 4
+dst = c1, linkid = 18, hop_count = 2
+dst = s7, linkid = 18, hop_count = 2
+Forwading Table of switch s7
+c0->l27
+c1->l27
+s0->l27
+s1->l27
+s2->l27
+s3->l27
+s4->l27
+s5->l27
+s6->l27
+s8->l25
+Distance Vector Table for switch s7
+dst = s8, linkid = 25, hop_count = 1
+dst = s5, linkid = 27, hop_count = 1
+dst = s2, linkid = 27, hop_count = 2
+dst = s3, linkid = 27, hop_count = 2
+dst = c1, linkid = 27, hop_count = 2
+dst = s6, linkid = 27, hop_count = 2
+dst = s1, linkid = 27, hop_count = 3
+dst = s0, linkid = 27, hop_count = 3
+dst = s4, linkid = 27, hop_count = 3
+dst = c0, linkid = 27, hop_count = 4
+Forwading Table of switch s8
+c0->l23
+c1->l23
+s0->l23
+s1->l23
+s2->l23
+s3->l23
+s4->l23
+s5->l23
+s6->l23
+s7->l24
+Distance Vector Table for switch s8
+dst = s6, linkid = 23, hop_count = 1
+dst = s7, linkid = 24, hop_count = 1
+dst = s5, linkid = 23, hop_count = 2
+dst = s4, linkid = 23, hop_count = 2
+dst = s2, linkid = 23, hop_count = 3
+dst = s1, linkid = 23, hop_count = 4
+dst = s0, linkid = 23, hop_count = 4
+dst = s3, linkid = 23, hop_count = 3
+dst = c0, linkid = 23, hop_count = 5
+dst = c1, linkid = 23, hop_count = 3
+-----------------------------------------
+C2[1] exited
+L[2] exited
+L[15] exited
+C2[0] exited
+L[12] exited
+L[6] exited
+L[1] exited
+L[22] exited
+L[20] exited
+L[10] exited
+L[24] exited
+L[4] exited
+L[17] exited
+L[16] exited
+L[21] exited
+L[18] exited
+L[0] exited
+L[23] exited
+L[25] exited
+L[8] exited
+L[14] exited
+L[11] exited
+L[13] exited
+L[28] exited
+L[27] exited
+L[7] exited
+L[5] exited
+L[19] exited
+L[9] exited
+S[7] exited
+S[1] exited
+L[3] exited
+L[26] exited
+L[29] exited
+S[5] exited
+S[2] exited
+S[8] exited
+C1[1] exited
+C1[0] exited
+S[0] exited
+S[6] exited
+S[3] exited
+S[4] exited
+Makefile:2: recipe for target 'main' failed
