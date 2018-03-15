@@ -5,22 +5,20 @@ void thread_switch_processing(int switchid){
   queue<Packet> &myq = mys.q;
   mutex *myqlock = mys.qlock;
   while(1){
+    //printf("S[%d] working\n",switchid);
     myqlock->lock();
     bool myqempty;
     myqempty = myq.empty();
     myqlock->unlock();
     if(!myqempty){
-      lps_lock.lock();
-      gettimeofday(&latest_packet_seen,NULL);
-      lps_lock.unlock();
 
       myqlock->lock();
       Packet &p = myq.front();
       myqlock->unlock();
 
       #ifdef PRINT
-      printf("S[%d] time:%lf => packetid = %lld, src = %s, dst = %s\n",switchid,
-                current_time(),p.packetid,p.src.c_str(),p.dst.c_str());
+      printf("S[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s\n",switchid,current_time(),
+            p.packetid,p.src.c_str(),p.dst.c_str(),TYPE(p.type).c_str());
       #endif
       // If this is ROUTING packet.
       if(p.type == ROUTING){
@@ -30,10 +28,14 @@ void thread_switch_processing(int switchid){
         // otherwise may fall into deadlock.
         mutex *r_dvt_lock = switches[getid(p.src)].my_dvt_lock;
         mutex *my_dvt_lock = mys.my_dvt_lock;
-        atomic_lock.lock();
+
+        bool already_unlocked = false;
+
+
+        //printf("S[%d] waiting to get my_dvt_lock & my_dvt_lock[%d] lock\n",switchid,getid(p.dst));
         r_dvt_lock->lock();
         my_dvt_lock->lock();
-        atomic_lock.unlock();
+        //printf("S[%d] got the both lock\n",switchid);
 
         dist_vector_table *r_dvt = (dist_vector_table*)p.data;
         assert(r_dvt);
@@ -98,13 +100,19 @@ void thread_switch_processing(int switchid){
             np.type = ROUTING;
             np.data = (dist_vector_table*)&mys.my_dvt;
 
+            r_dvt_lock->unlock();
+            my_dvt_lock->unlock();
+            already_unlocked = true;
+
             for(int i=0;i<mys.connected_links.size();i++){
               // don't send it to controller or the switch from which dvt was received.
               if(links[mys.connected_links[i]].dst[0] == 'c') continue;
               //if(links[mys.connected_links[i]].dst == p.src) continue;
               gettimeofday(&np.start_time,NULL);
 
+              //printf("S[%d] waiting to get qlock of l[%d] lock\n",switchid,mys.connected_links[i]);
               links[mys.connected_links[i]].qlock->lock();
+              //printf("S[%d] got the qlock of l[%d] lock\n",switchid,mys.connected_links[i]);
               links[mys.connected_links[i]].q.push(np);
               links[mys.connected_links[i]].qlock->unlock();
 
@@ -116,12 +124,14 @@ void thread_switch_processing(int switchid){
 
         }
 
-        atomic_lock.lock();
-        r_dvt_lock->unlock();
-        my_dvt_lock->unlock();
-        atomic_lock.unlock();
+        if(!already_unlocked){
+          r_dvt_lock->unlock();
+          my_dvt_lock->unlock();
+        }
 
+        //printf("S[%d] waiting to get myqlock\n",switchid);
         myqlock->lock();
+        //printf("S[%d] got the myqlock\n",switchid);
         myq.pop();
         myqlock->unlock();
         continue;
@@ -144,7 +154,9 @@ void thread_switch_processing(int switchid){
 
             //TODO transmissin dealy not implemented.
             gettimeofday(&np.start_time,NULL);
+            //printf("S[%d] waiting to get qlock\n",switchid);
             links[mys.forwarding_table[np.dst]].qlock->lock();
+            //printf("S[%d] got the qlock\n",switchid);
             links[mys.forwarding_table[np.dst]].q.push(np);
             links[mys.forwarding_table[np.dst]].qlock->unlock();
           }
@@ -158,7 +170,9 @@ void thread_switch_processing(int switchid){
           // If flow table hit, forwad it.
           // TODO transmission delay not implemented.
           gettimeofday(&p.start_time,NULL);
+          //printf("S[%d] waiting to get qlock\n",switchid);
           links[mys.forwarding_table[p.dst]].qlock->lock();
+          //printf("S[%d] got the qlock\n",switchid);
           links[mys.forwarding_table[p.dst]].q.push(p);
           links[mys.forwarding_table[p.dst]].qlock->unlock();
         }
@@ -188,31 +202,22 @@ void thread_switch_processing(int switchid){
           np.type = PACKET_IN;
           np.packetid = p.packetid;
           gettimeofday(&np.start_time,NULL);
+          //printf("S[%d] waiting to get qlock\n",switchid);
           links[mys.forwarding_table[np.dst]].qlock->lock();
+          //printf("S[%d] got the qlock\n",switchid);
           links[mys.forwarding_table[np.dst]].q.push(np);
           links[mys.forwarding_table[np.dst]].qlock->unlock();
 
         }
       }
       // all processing done pop the packet.
+      //printf("S[%d] waiting to get myqlock\n",switchid);
       myqlock->lock();
+      //printf("S[%d] got qlock\n",switchid);
       myq.pop();
       myqlock->unlock();
     }
     // no packets in queue.
-    else if(emulation_done){
-      struct timeval t;
-      gettimeofday(&t,NULL);
-      lps_lock.lock();
-      long td = time_diff(t,latest_packet_seen);
-      lps_lock.unlock();
-      if(td>max_delay){
-        #ifdef PRINT
-        printf("S[%d] exited\n",switchid);
-        #endif
-        break;
-      }
-    }
     else usleep(1000); // sleep for 1 milli second
   }
 }

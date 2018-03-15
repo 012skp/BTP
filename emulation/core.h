@@ -11,11 +11,8 @@
 using namespace std;
 
 struct timeval emulation_start_time;
-struct timeval latest_packet_seen;
-mutex lps_lock;                           // latest_packet_seen lock
-mutex atomic_lock;                        // to execute a set of inst. atomically.
 bool emulation_done;
-int max_delay;                            // if latest_packet_seen dealy > max_delay stop emulation.                            
+int max_delay;                            // if latest_packet_seen dealy > max_delay stop emulation.
 
 struct dist_vector{
   string dst;
@@ -31,6 +28,14 @@ struct dist_vector_table{
 
 
 enum pkt_type{CONTROL,NORMAL,ROUTING,PACKET_IN,PACKET_OUT,PKT_DROP,ACK};
+
+string TYPE(int i){
+  if(i==CONTROL) return "CONTROL";
+  if(i==NORMAL) return "NORMAL";
+  if(i==ROUTING) return "ROUTING";
+  if(i==PACKET_IN) return "PACKET_IN";
+  if(i==PACKET_OUT) return "PACKET_OUT";
+}
 
 // only CONTROL packets will have packet subtypes
 enum pkt_subtype{LOAD_MIRGRATION,ROLE_REQ,ROLE_REP,LOAD_BROADCAST,NEW_THRESHOLD};
@@ -61,8 +66,8 @@ struct Controller{
   int avg_processing_time = (min_processing_time+max_processing_time)/2;
   int current_load = 0;                       // avg_processing_time*q.size()
   int load_informed = 0;
-  int allowed_load_deviation = 100;
   int base_threshold = 1000000;               // 1 second
+  int allowed_load_deviation = 0.1*base_threshold;
   int current_threshold = base_threshold;
   int linkid ;                                // link id through which it is connected
   queue<Packet> q;                            // packets in queue to be processed

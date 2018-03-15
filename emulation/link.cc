@@ -41,14 +41,12 @@ void thread_link(int  linkid){
       int myqsize = myq.size();
       myqlock->unlock();
       if(myqsize > 0){
-        lps_lock.lock();
-        gettimeofday(&latest_packet_seen,NULL);
-        lps_lock.unlock();
 
         myqlock->lock();
         #ifdef PRINT
-        printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s\n",linkid,current_time(),
-                  myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str());
+        printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s\n",linkid,current_time(),
+                  myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str(),
+                  TYPE(myq.front().type).c_str());
         #endif
         myqlock->unlock();
 
@@ -119,17 +117,7 @@ void thread_link(int  linkid){
 
       }
       else {
-        if(emulation_done){
-          struct timeval t;
-          gettimeofday(&t,NULL);
-          if(time_diff(t,latest_packet_seen) >  max_delay){
-            #ifdef PRINT
-            printf("L[%d] exited\n",linkid);
-            #endif
-            break;
-          }
-        }
-        usleep(0); // context switch so that other threads get chance.
+        usleep(1000); // context switch so that other threads get chance.
       }
   }
 }

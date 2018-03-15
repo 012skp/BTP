@@ -35,20 +35,6 @@ void thread_controller_load_balancing(int controllerid){
       fprintf(fp,"%lf %d\n",current_time(),qsize);
       #ifdef PRINT
       #endif
-      if(emulation_done){
-        struct timeval t;
-        lps_lock.lock();
-        gettimeofday(&t,NULL);
-        long td = time_diff(t,latest_packet_seen);
-        lps_lock.unlock();
-        if(td>max_delay){
-          fclose(fp);
-          #ifdef PRINT
-          printf("C1[%d] exited\n",controllerid);
-          #endif
-          break;
-        }
-      }
       usleep(1000); // period = 10 milli second.
 
 
@@ -268,17 +254,14 @@ void thread_controller_processing(int controllerid){
     myqlock->unlock();
 
     if(!myqempty){
-      lps_lock.lock();
-      gettimeofday(&latest_packet_seen,NULL);
-      lps_lock.unlock();
 
       myqlock->lock();
       Packet p = myq.front();
       myqlock->unlock();
 
       #ifdef PRINT
-      printf("C[%d] time:%lf => packetid = %lld, src = %s\n",controllerid,current_time(),
-                                                        p.packetid,p.src.c_str());
+      printf("C[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s\n",controllerid,current_time(),
+                          p.packetid,p.src.c_str(),p.dst.c_str(),TYPE(p.type).c_str());
       #endif
 
       if(p.type == PACKET_IN){
@@ -293,7 +276,6 @@ void thread_controller_processing(int controllerid){
           np.dst = p.src;
           np.packetid = p.packetid;
           gettimeofday(&np.start_time,NULL);
-
           links[myc.linkid].qlock->lock();
           links[myc.linkid].q.push(np);
           links[myc.linkid].qlock->unlock();
@@ -375,21 +357,7 @@ void thread_controller_processing(int controllerid){
 
     }
     else{
-      if(emulation_done){
-        struct timeval t;
-        lps_lock.lock();
-        gettimeofday(&t,NULL);
-        long td = time_diff(t,latest_packet_seen);
-        lps_lock.unlock();
-        if(td > max_delay){
-          #ifdef PRINT
-          printf("C2[%d] exited\n",controllerid);
-          #endif
-          break;
-        }
-
-      }
-      //usleep(2000);
+      usleep(2000);
     }
 
 

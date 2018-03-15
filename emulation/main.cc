@@ -17,7 +17,6 @@ void topology_builder(string);
 
 int main(){
   gettimeofday(&emulation_start_time,NULL);
-  gettimeofday(&latest_packet_seen,NULL);
   emulation_done = false;
   // If no packet seen in network for 100 milli second
   // stop emulation.
@@ -91,16 +90,7 @@ int main(){
 
   // Let routing table generation finish.
   // Wait for it.
-  while(1){
-    struct timeval t;
-    gettimeofday(&t,NULL);
-    lps_lock.lock();
-    long td = time_diff(t,latest_packet_seen);
-    lps_lock.unlock();
-    if(td > max_delay) break;
-    usleep(10000);
-  }
-  sleep(5);
+  sleep(2);
   printf("Final routing table at %lf.\n",current_time());
   printf("-----------------------------------------\n");
   for(int i=0;i<switches.size();i++){
@@ -111,7 +101,7 @@ int main(){
 
 
   // Testing with single packet.
-  /*
+
   sleep(2);
   p.src = "s0";
   p.dst = "s1";
@@ -121,7 +111,7 @@ int main(){
   switches[0].qlock->lock();
   switches[0].q.push(p);
   switches[0].qlock->unlock();
-  */
+
 
 
 
@@ -131,6 +121,7 @@ int main(){
   sleep(2);
   emulation_done = true;
   // wait for threads...
+
 
 
 
