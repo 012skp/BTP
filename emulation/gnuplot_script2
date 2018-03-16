@@ -4,7 +4,7 @@ unset log                              # remove any log-scaling
 unset label                            # remove any previous labels
 set xtic auto                          # set xtics automatically
 set ytic auto                          # set ytics automatically
-set title "Variance of load on controller"
+set title "Throughput and Packet drop "
+set ylabel "No of Packets/5 milli second"
 set xlabel "Time"
-set ylabel "Load"
-plot "c0_load" using 1:2 w linespoints, "pkt_drop" using 1:2 w linespoints
+plot "pkt_drop" using 1:2 w linespoints, "throughput" using 1:2 w linespoints

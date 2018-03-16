@@ -11,8 +11,6 @@
 using namespace std;
 
 struct timeval emulation_start_time;
-bool emulation_done;
-int max_delay;                            // if latest_packet_seen dealy > max_delay stop emulation.
 
 struct dist_vector{
   string dst;
@@ -35,14 +33,27 @@ string TYPE(int i){
   if(i==ROUTING) return "ROUTING";
   if(i==PACKET_IN) return "PACKET_IN";
   if(i==PACKET_OUT) return "PACKET_OUT";
+  return "";
 }
 
+
 // only CONTROL packets will have packet subtypes
-enum pkt_subtype{LOAD_MIRGRATION,ROLE_REQ,ROLE_REP,LOAD_BROADCAST,NEW_THRESHOLD};
+enum pkt_subtype{LOAD_MIGRATION,LOAD_MIGRATION_ACK,ROLE_REQ,ROLE_REQ_ACK,LOAD_BROADCAST,NEW_THRESHOLD};
 /*ROLE_REQ sent by target(lowest_loaded) controller to switch.
   ROLE_REP sent by switch to target controller to information
   load migration successful.
 */
+
+string SUBTYPE(int i){
+  if(i==LOAD_MIGRATION) return "LOAD_MIGRATION";
+  if(i==ROLE_REQ) return "ROLE_REQ";
+  if(i==ROLE_REQ_ACK) return "ROLE_REQ_ACK";
+  if(i==LOAD_BROADCAST) return "LOAD_BROADCAST";
+  if(i==NEW_THRESHOLD) return "NEW_THRESHOLD";
+  if(i==LOAD_MIGRATION_ACK) return "LOAD_MIGRATION_ACK";
+  return "";
+}
+
 
 struct dist_vector_table;
 
@@ -63,22 +74,31 @@ struct Controller{
   string own_name;
   int min_processing_time = 1000;             // processing_time in microsecond.
   int max_processing_time = 2000;
-  int avg_processing_time = (min_processing_time+max_processing_time)/2;
+  int avg_processing_time = 1500;//(min_processing_time+max_processing_time)/2;
   int current_load = 0;                       // avg_processing_time*q.size()
   int load_informed = 0;
-  int base_threshold = 1000000;               // 1 second
+  int base_threshold = 500000;                // 0.5 second
   int allowed_load_deviation = 0.1*base_threshold;
   int current_threshold = base_threshold;
+  bool load_migration_in_process = false;
+  struct timeval load_migrated_time;          // waiting time after load migration = 1 second.
+
   int linkid ;                                // link id through which it is connected
+
   queue<Packet> q;                            // packets in queue to be processed
   mutex *qlock = NULL;
   int max_queue_size = 1000;
+
   map<string,int> switch_pkt_count;           // count of packets in queue by different switches
   mutex *switch_pkt_count_lock = NULL;
+
   vector<int> load_collections;               // load information of other controllers.
   mutex *lclock = NULL;
+
   double alpha = 0.70;                        // LB if lowest_load < alpha*current_threshold
   int max_load_gap = 0.20*base_threshold;     // max_load_gap allowed between CT and (heighest load > BT).
+
+  bool terminate = false;
 };
 
 
@@ -92,6 +112,7 @@ struct Link{
   mutex *qlock = NULL;
   bool special = false;                               // if src is any switch and dst is controller.
   vector<pair<double,string> > packet_drop;
+  bool terminate = false;
 };
 
 
@@ -112,7 +133,7 @@ struct Switch{
   dist_vector_table my_dvt;
   mutex *my_dvt_lock = NULL;
   /*If there is any change in my_dvt
-    update forwading_table and broadcast it.
+    update forwarding_table and broadcast it.
   */
   vector<int> dvt_version;
 
@@ -130,6 +151,7 @@ struct Switch{
   vector<double> pkt_gen_time;
 
   int flow_table_hit_percentage = 10;
+  bool terminate = false;
 
 };
 
@@ -137,6 +159,11 @@ struct Switch{
 vector<Switch> switches;
 vector<Link> links;
 vector<Controller> controllers;
+vector<thread> th_c;
+vector<thread> th_s;
+vector<thread> th_l;
+vector<thread> th_clb;
+vector<thread> th_spg;
 
 
 struct broadcast_data{
@@ -150,7 +177,7 @@ struct broadcast_data{
 /* ROUTING => forwarding_table */
 /* LOAD_BROADCAST => broadcast_data, data = load*/
 /* NEW_THRESHOLD  => broadcast_data, data = new_threshold*/
-/* LOAD_MIRGRATION => int */
+/* LOAD_MIGRATION => int */
 
 /* PACKET_IN, PACKET_OUT => NULL */
 

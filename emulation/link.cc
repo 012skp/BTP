@@ -35,6 +35,7 @@ void thread_link(int  linkid){
   mutex *myqlock = links[linkid].qlock;
 
   while(1){
+      if(mylink.terminate) break;
       // Lock well before reading or writing.
       myqlock->lock();
       //printf("L[%d] got the mutex\n",linkid);
@@ -43,12 +44,21 @@ void thread_link(int  linkid){
       if(myqsize > 0){
 
         myqlock->lock();
+        Packet fp = myq.front();
+        myqlock->unlock();
         #ifdef PRINT
         printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s\n",linkid,current_time(),
-                  myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str(),
-                  TYPE(myq.front().type).c_str());
+                  fp.packetid,fp.src.c_str(),fp.dst.c_str(),TYPE(fp.type).c_str());
         #endif
-        myqlock->unlock();
+        if(fp.type == CONTROL &&
+          (fp.subtype == LOAD_MIGRATION||fp.subtype==LOAD_MIGRATION_ACK||fp.subtype==ROLE_REQ||fp.subtype==ROLE_REQ_ACK)
+          ){
+          printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s, subtype %s\n",
+                    linkid,current_time(),
+                    myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str(),
+                    TYPE(myq.front().type).c_str(),SUBTYPE(myq.front().subtype).c_str());
+        }
+
 
         int dqsize;
         dqlock->lock();
@@ -103,11 +113,15 @@ void thread_link(int  linkid){
                 map<string,int> &switch_pkt_count = c.switch_pkt_count;
 
                 mutex *switch_pkt_count_lock = c.switch_pkt_count_lock;
+
                 // If this is the first packet in queue.
                 switch_pkt_count_lock->lock();
                 if(switch_pkt_count.find(top_packet.src) == switch_pkt_count.end())
                   switch_pkt_count[top_packet.src] = 1;
-                  else switch_pkt_count[top_packet.src]++;
+
+                else switch_pkt_count[top_packet.src]++;
+                //printf("time = %lf: at c%d pkt count of %s is %d\n",current_time(),getid(mylink.dst),
+                          //top_packet.src.c_str(),switch_pkt_count[top_packet.src]);
                 switch_pkt_count_lock->unlock();
               }
 

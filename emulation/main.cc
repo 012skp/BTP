@@ -1,26 +1,44 @@
 
-#define PRINT
+//#define PRINT
+#define PRINT_PKT_DROP
 
 #include "core.h"
 #include "controller.cc"
 #include "link.cc"
 #include "switch.cc"
-using namespace std;
+#include <signal.h>
 
 
 
 void packet_drop_statistic();
-
+void throughput_statistic();
 void topology_builder(string);
 
+bool terminate_main_thread = false;
+bool LB_RUNNING = true;
+
+// When SIGINT signal received, terminate all threads.
+void sig_handler(int sig){
+  // Set every element terminate to true.
+  for(int i=0;i<controllers.size();i++) controllers[i].terminate = true;
+  for(int i=0;i<switches.size();i++) switches[i].terminate = true;
+  for(int i=0;i<links.size();i++) links[i].terminate = true;
+
+  // Wait for them to terminate.
+  for(int i=0;i<controllers.size();i++) th_c[i].join();
+  if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i].join();
+  for(int i=0;i<switches.size();i++) th_s[i].join();
+  for(int i=0;i<switches.size();i++) th_spg[i].join();
+  for(int i=0;i<links.size();i++) th_l[i].join();
+
+  terminate_main_thread = true;
+}
 
 
 int main(){
+  // Register to receive SIGINT.
+  signal(SIGINT, sig_handler);
   gettimeofday(&emulation_start_time,NULL);
-  emulation_done = false;
-  // If no packet seen in network for 100 milli second
-  // stop emulation.
-  max_delay = 100000;
   srand((int)time(NULL));
 
   topology_builder("topology1");
@@ -31,6 +49,7 @@ int main(){
     controllers[i].qlock  = new mutex();
     controllers[i].lclock = new mutex();
     controllers[i].switch_pkt_count_lock = new mutex();
+    controllers[i].load_collections.resize(controllers.size());
   }
   for(int i=0;i<links.size();i++) links[i].qlock = new mutex();
   for(int i=0;i<switches.size();i++){
@@ -42,27 +61,31 @@ int main(){
 
 
   // Create threads.
-  thread th_c[controllers.size()];
-  thread th_clb[controllers.size()];
-  thread th_s[switches.size()];
-  thread th_spg[switches.size()];
-  thread th_l[links.size()];
+  th_c.resize(controllers.size());
+  th_clb.resize(controllers.size());
+  th_s.resize(switches.size());
+  th_spg.resize(switches.size());
+  th_l.resize(links.size());
 
 
 
 
   // Set pkt_gen_interval for each switch.
-  int no_of_switch_per_controller = switches.size()/controllers.size();
-  double pkt_serving_rate = 1.0/2000.0;
-  double pkt_gen_rate  = pkt_serving_rate/no_of_switch_per_controller;
-  int pkt_gen_interval = (int)(1.0/pkt_gen_rate);
-  for(int i=0;i<switches.size();i++) switches[i].pkt_gen_interval = pkt_gen_interval;
+  switches[0].pkt_gen_interval =
+  switches[1].pkt_gen_interval =
+  switches[2].pkt_gen_interval =
+  switches[4].pkt_gen_interval = 8000;
+
+  switches[3].pkt_gen_interval =
+  switches[5].pkt_gen_interval =
+  switches[6].pkt_gen_interval =
+  switches[7].pkt_gen_interval =
+  switches[8].pkt_gen_interval = 6666;
 
 
 
-  // Start thread except packet_generator.
+  // Start thread except packet_generator and load_balancer.
   for(int i=0;i<controllers.size();i++) th_c[i] = thread(thread_controller_processing,i);
-  for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
   for(int i=0;i<switches.size();i++) th_s[i] = thread(thread_switch_processing,i);
   for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
 
@@ -100,8 +123,9 @@ int main(){
   printf("-----------------------------------------\n");
 
 
-  // Testing with single packet.
 
+  // Testing with single packet.
+  /*
   sleep(2);
   p.src = "s0";
   p.dst = "s1";
@@ -112,32 +136,57 @@ int main(){
   switches[0].q.push(p);
   switches[0].qlock->unlock();
 
-
-
-
-  // Start all packet_generator threads.
-  //for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
-
-  sleep(2);
-  emulation_done = true;
-  // wait for threads...
+  */
 
 
 
 
-  for(int i=0;i<controllers.size();i++) th_c[i].join();
-  for(int i=0;i<controllers.size();i++) th_clb[i].join();
-  for(int i=0;i<switches.size();i++) th_s[i].join();
-  //for(int i=0;i<switches.size();i++) th_spg[i].join();
-  for(int i=0;i<links.size();i++) th_l[i].join();
+  // Start load_balancer and packet_generator threads.
+  if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
+  for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
 
+
+  // Wait untill get termiate.
+  while(!terminate_main_thread) usleep(10000);
   packet_drop_statistic();
+  throughput_statistic();
   return 0;
 }
 
 
 void start_control(){
 
+}
+
+void throughput_statistic(){
+  // Records packet_generation_time for all switches.
+  vector<double> pgt;
+  for(int i=0;i<switches.size();i++){
+    for(int j=0;j<switches[i].pkt_gen_time.size();j++){
+      //printf("s[%d] => %lf\n",i,switches[i].pkt_gen_time[j]);
+      pgt.push_back(switches[i].pkt_gen_time[j]);
+    }
+  }
+  sort(pgt.begin(),pgt.end());
+  FILE *fpp = fopen("pgt","w");
+  for(int i=0;i<pgt.size();i++){
+    fprintf(fpp,"%lf\n",pgt[i]);
+    pgt[i]*=1000000;
+    //printf("pgt = %lf\n",pgt[i]);
+  }
+  fclose(fpp);
+
+  FILE *fp = fopen("throughput","w");
+
+  int idx = 0;
+  int current_time = 0;
+  while(idx<pgt.size()){
+    int cnt = 0;
+    while(idx < pgt.size() && pgt[idx] < current_time+5000){idx++;cnt++;}
+    fprintf(fp,"%lf %d\n",((double)(current_time))/1000000,cnt);
+    current_time += 50000;
+  }
+  fclose(fp);
 }
 
 void packet_drop_statistic(){
@@ -150,16 +199,17 @@ void packet_drop_statistic(){
   //count of packets drop at every 1 milli seconds.
   vector<pair<double,string> > &pd = packets_dropped;
   for(int i=0;i<pd.size();i++) pd[i].first *= 1000000;
+
   int idx = 0;
-  int ct = 0;
+  int current_time = 0;
   FILE *fp = fopen("pkt_drop","w");
   printf("pkt_drop cnt = %ld\n",pd.size());
   while(idx<pd.size()){
     int cnt = 0;
-    while(pd[idx].first < ct+5000 && idx < pd.size()){cnt++; idx++;}
-    if(cnt) fprintf(fp,"%lf %d\n",((double)(ct))/1000000,cnt);
+    while(pd[idx].first < current_time+5000 && idx < pd.size()){cnt++; idx++;}
+    fprintf(fp,"%lf %d\n",((double)(current_time))/1000000,cnt);
 
-    ct += 5000;
+    current_time += 5000;
   }
   fclose(fp);
 }
