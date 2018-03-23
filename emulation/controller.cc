@@ -12,6 +12,7 @@ void controller_load_balancing_decision_maker(int controllerid);
 
 // Load Collection every 1000 microsecond.
 void thread_controller_load_balancing(int controllerid){
+    printf("Controller %d Load Balncing is up\n",controllerid);
     char filename[20];
     memset(filename,0,20);
     strcat(filename,"c");
@@ -22,7 +23,10 @@ void thread_controller_load_balancing(int controllerid){
     queue<Packet> &myq = myc.q;
     mutex *myqlock = myc.qlock;
     while(1){
-      if(myc.terminate) break;
+      if(myc.terminate){
+        printf("Controller %d Load Balncing exited\n",controllerid);
+        break;
+      }
       myqlock->lock();
       int qsize = myq.size();
       myqlock->unlock();
@@ -39,7 +43,6 @@ void thread_controller_load_balancing(int controllerid){
         struct timeval t;
         gettimeofday(&t,NULL);
         long td = time_diff(t,myc.load_migrated_time);
-        //printf("td = %ld\n",td);
         if(td >= 1000000)
           controller_load_balancing_decision_maker(controllerid);
       }
@@ -272,12 +275,16 @@ void controller_load_balancing_decision_maker(int controllerid){
 
 
 void thread_controller_processing(int controllerid){
+  printf("Controller %d Processing Thread is up\n",controllerid);
   Controller &myc = controllers[controllerid];
   queue<Packet> &myq = myc.q;
   mutex *myqlock = myc.qlock;
   // Get packets from queue and process them.
   while(1){
-    if(myc.terminate) break;
+    if(myc.terminate){
+      printf("Controller %d Processing Thread exited\n",controllerid);
+      break;
+    }
     bool myqempty;
     myqlock->lock();
     myqempty = myq.empty();

@@ -12,6 +12,7 @@ using namespace std;
 
 
 void thread_link(int  linkid){
+  printf("Link %d is up\n",linkid);
   Link &mylink = links[linkid]; // get the link info from global database;
 
   // get destination queue as 'dq'
@@ -35,29 +36,34 @@ void thread_link(int  linkid){
   mutex *myqlock = links[linkid].qlock;
 
   while(1){
-      if(mylink.terminate) break;
+      if(mylink.terminate) {
+        printf("Link %d exited\n",linkid);
+        break;
+      }
+
       // Lock well before reading or writing.
       myqlock->lock();
-      //printf("L[%d] got the mutex\n",linkid);
       int myqsize = myq.size();
       myqlock->unlock();
       if(myqsize > 0){
-
+        // Get top packet as fp.(front packet)
         myqlock->lock();
         Packet fp = myq.front();
         myqlock->unlock();
+
         #ifdef PRINT
         printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s\n",linkid,current_time(),
                   fp.packetid,fp.src.c_str(),fp.dst.c_str(),TYPE(fp.type).c_str());
         #endif
-        if(fp.type == CONTROL &&
-          (fp.subtype == LOAD_MIGRATION||fp.subtype==LOAD_MIGRATION_ACK||fp.subtype==ROLE_REQ||fp.subtype==ROLE_REQ_ACK)
-          ){
+
+        #ifdef PRINT_CONTROL
+        if(fp.type == CONTROL){
           printf("L[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s, subtype %s\n",
                     linkid,current_time(),
                     myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str(),
                     TYPE(myq.front().type).c_str(),SUBTYPE(myq.front().subtype).c_str());
         }
+        #endif
 
 
         int dqsize;
@@ -69,18 +75,21 @@ void thread_link(int  linkid){
         if(dqsize>= dq_max_size){
           // Drop the packet silently.
 
-          myqlock->lock();
           #ifdef PRINT_PKT_DROP
-          printf("Packet %lld drop at %s\n",myq.front().packetid,mylink.dst.c_str());
+          printf("Packet %lld drop at %s\n",fp.packetid,mylink.dst.c_str());
           #endif
+
           mylink.packet_drop.push_back({current_time(),mylink.dst});
+
+          myqlock->lock();
           myq.pop();
           myqlock->unlock();
+
         }
         else{
-          myqlock->lock();
-          Packet top_packet = myq.front();
-          myqlock->unlock();
+            // Front packet is top_packet.
+            Packet top_packet = fp;
+
             // Packet should wait for propagation delay in link.
             // If now - packet.start_time >= delay of mylink put it on dst queue.
             struct timeval now;

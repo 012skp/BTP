@@ -6,11 +6,15 @@
 using namespace std;
 
 void thread_switch_processing(int switchid){
+  printf("Switch %d, Processing Thread is up\n",switchid);
   Switch &mys = switches[switchid];
   queue<Packet> &myq = mys.q;
   mutex *myqlock = mys.qlock;
   while(1){
-    if(mys.terminate) break;
+    if(mys.terminate){
+      printf("Switch Processing Thread %d exited\n",switchid);
+      break;
+    }
     myqlock->lock();
     bool myqempty;
     myqempty = myq.empty();
@@ -26,14 +30,15 @@ void thread_switch_processing(int switchid){
             p.packetid,p.src.c_str(),p.dst.c_str(),TYPE(p.type).c_str());
       #endif
       Packet fp = p;
-      if(fp.type == CONTROL &&
-        (fp.subtype == LOAD_MIGRATION||fp.subtype==LOAD_MIGRATION_ACK||fp.subtype==ROLE_REQ||fp.subtype==ROLE_REQ_ACK)
-        ){
+
+      #ifdef PRINT_CONTROL
+      if(fp.type == CONTROL) {
         printf("S[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s, subtype %s\n",
                   switchid,current_time(),
                   myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str(),
                   TYPE(myq.front().type).c_str(),SUBTYPE(myq.front().subtype).c_str());
       }
+      #endif
 
       // If this is ROUTING packet.
       if(p.type == ROUTING){
@@ -266,11 +271,14 @@ void thread_switch_processing(int switchid){
 
 
 void thread_switch_pkt_generator(int switchid){
-  // Packet generating rate
+  printf("Switch %d Packet Generator Thread is up\n",switchid);
   Switch &mys = switches[switchid];
   int pkt_id = switchid*1000000;
   while(1){
-    if(mys.terminate) break;
+    if(mys.terminate) {
+      printf("Switch %d Packet Generator Thread exited\n",switchid);
+      break;
+    }
     Packet p;
     p.src = mys.own_name;
     int did = rand()%switches.size();

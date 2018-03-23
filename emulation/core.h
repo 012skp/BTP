@@ -74,7 +74,7 @@ struct Controller{
   string own_name;
   int min_processing_time = 1000;             // processing_time in microsecond.
   int max_processing_time = 2000;
-  int avg_processing_time = 1500;//(min_processing_time+max_processing_time)/2;
+  int avg_processing_time = 1500;             //(min_processing_time+max_processing_time)/2;
   int current_load = 0;                       // avg_processing_time*q.size()
   int load_informed = 0;
   int base_threshold = 500000;                // 0.5 second
@@ -87,7 +87,7 @@ struct Controller{
 
   queue<Packet> q;                            // packets in queue to be processed
   mutex *qlock = NULL;
-  int max_queue_size = 1000;
+  int max_queue_size = 500;
 
   map<string,int> switch_pkt_count;           // count of packets in queue by different switches
   mutex *switch_pkt_count_lock = NULL;

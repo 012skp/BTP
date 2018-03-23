@@ -1,6 +1,7 @@
 
 //#define PRINT
 #define PRINT_PKT_DROP
+#define PRINT_CONTROL
 
 #include "core.h"
 #include "controller.cc"
@@ -10,12 +11,13 @@
 
 
 
-void packet_drop_statistic();
+void packet_drop_statistic(map<double,int> &pdtc);
 void throughput_statistic();
 void topology_builder(string);
 
 bool terminate_main_thread = false;
 bool LB_RUNNING = true;
+bool PG_RUNNING = true;
 
 // When SIGINT signal received, terminate all threads.
 void sig_handler(int sig){
@@ -28,7 +30,7 @@ void sig_handler(int sig){
   for(int i=0;i<controllers.size();i++) th_c[i].join();
   if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i].join();
   for(int i=0;i<switches.size();i++) th_s[i].join();
-  for(int i=0;i<switches.size();i++) th_spg[i].join();
+  if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i].join();
   for(int i=0;i<links.size();i++) th_l[i].join();
 
   terminate_main_thread = true;
@@ -90,10 +92,6 @@ int main(){
   for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
 
 
-
-  sleep(1); // start all threads before.
-
-
   // Initial routing_table_info
   printf("-----------------------------------------\n");
   for(int i=0;i<switches.size();i++){
@@ -111,24 +109,21 @@ int main(){
   links[2].q.push(p);
   links[7].q.push(p);
 
-  // Let routing table generation finish.
+  // Let route computation finish.
   // Wait for it.
   sleep(2);
   printf("Final routing table at %lf.\n",current_time());
   printf("-----------------------------------------\n");
-  for(int i=0;i<switches.size();i++){
-    routing_table_info(i);
-    dvt_info(i);
-  }
+  for(int i=0;i<switches.size();i++) dvt_info(i);
   printf("-----------------------------------------\n");
 
 
 
   // Testing with single packet.
-  /*
-  sleep(2);
+
+
   p.src = "s0";
-  p.dst = "s1";
+  p.dst = "s7";
   p.type = NORMAL;
   p.packetid = 342;
   p.data = NULL;
@@ -136,19 +131,18 @@ int main(){
   switches[0].q.push(p);
   switches[0].qlock->unlock();
 
-  */
+
 
 
 
 
   // Start load_balancer and packet_generator threads.
   if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
-  for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
+  if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
 
 
   // Wait untill get termiate.
   while(!terminate_main_thread) usleep(10000);
-  packet_drop_statistic();
   throughput_statistic();
   return 0;
 }
@@ -163,41 +157,57 @@ void throughput_statistic(){
   vector<double> pgt;
   for(int i=0;i<switches.size();i++){
     for(int j=0;j<switches[i].pkt_gen_time.size();j++){
-      //printf("s[%d] => %lf\n",i,switches[i].pkt_gen_time[j]);
       pgt.push_back(switches[i].pkt_gen_time[j]);
     }
   }
   sort(pgt.begin(),pgt.end());
-  FILE *fpp = fopen("pgt","w");
-  for(int i=0;i<pgt.size();i++){
-    fprintf(fpp,"%lf\n",pgt[i]);
-    pgt[i]*=1000000;
-    //printf("pgt = %lf\n",pgt[i]);
-  }
-  fclose(fpp);
+
+  // convert time from second to microsecond.
+  for(int i=0;i<pgt.size();i++) pgt[i]*=1000000;
 
   FILE *fp = fopen("throughput","w");
 
   int idx = 0;
   int current_time = 0;
+  map<double,int> pkt_gen_time_cnt;
   while(idx<pgt.size()){
     int cnt = 0;
-    while(idx < pgt.size() && pgt[idx] < current_time+5000){idx++;cnt++;}
-    fprintf(fp,"%lf %d\n",((double)(current_time))/1000000,cnt);
-    current_time += 50000;
+    // count of packets generated in a period of 1 second.
+    while(idx < pgt.size() && pgt[idx] < current_time+1000000){idx++;cnt++;}
+    pkt_gen_time_cnt[((double)(current_time))/1000000] = cnt;
+    current_time += 1000000;
+  }
+
+  map<double,int> pkt_drop_time_cnt;
+  packet_drop_statistic(pkt_drop_time_cnt);
+
+  // Now for every packet drop in 5000 microsecond interval decrease count from packet generation.
+  auto itr = pkt_drop_time_cnt.begin();
+  while(itr!=pkt_drop_time_cnt.end()){
+    double drop_time = itr->first;
+    int drop_cnt = itr->second;
+    if(pkt_gen_time_cnt.find(drop_time) != pkt_gen_time_cnt.end()) pkt_gen_time_cnt[drop_time]-=drop_cnt;
+    itr++;
+  }
+  itr = pkt_gen_time_cnt.begin();
+  while(itr!=pkt_gen_time_cnt.end()){
+    fprintf(fp,"%lf %d\n",itr->first,itr->second);
+    itr++;
   }
   fclose(fp);
 }
 
-void packet_drop_statistic(){
+void packet_drop_statistic(map<double,int> &pkt_drop_time_cnt){
   vector<pair<double,string> > packets_dropped;
   for(int i=0;i<links.size();i++){
     packets_dropped.insert(packets_dropped.end(),
       links[i].packet_drop.begin(),links[i].packet_drop.end());
   }
   sort(packets_dropped.begin(),packets_dropped.end());
-  //count of packets drop at every 1 milli seconds.
+  // count of packets drop in interval 1 second
   vector<pair<double,string> > &pd = packets_dropped;
+
+  // convert time from seconds to microseconds.
   for(int i=0;i<pd.size();i++) pd[i].first *= 1000000;
 
   int idx = 0;
@@ -206,10 +216,10 @@ void packet_drop_statistic(){
   printf("pkt_drop cnt = %ld\n",pd.size());
   while(idx<pd.size()){
     int cnt = 0;
-    while(pd[idx].first < current_time+5000 && idx < pd.size()){cnt++; idx++;}
+    while(pd[idx].first < current_time+1000000 && idx < pd.size()){cnt++; idx++;}
     fprintf(fp,"%lf %d\n",((double)(current_time))/1000000,cnt);
-
-    current_time += 5000;
+    pkt_drop_time_cnt[((double)(current_time))/1000000] = cnt;
+    current_time += 1000000;
   }
   fclose(fp);
 }
