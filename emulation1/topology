@@ -1,0 +1,14 @@
+controllers_count 1
+switches_count 3
+links_count 8
+controller(s0,c0)
+controller(s1,c0)
+controller(s2,c0)
+link(l0,s0,c0)
+link(l1,c0,s0)
+link(l2,s0,s1)
+link(l3,s1,s0)
+link(l4,s2,s1)
+link(l5,s1,s2)
+link(l6,s2,s0)
+link(l7,s0,s2)

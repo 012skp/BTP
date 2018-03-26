@@ -8,6 +8,9 @@
 #include "link.cc"
 #include "switch.cc"
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 
@@ -49,8 +52,9 @@ int main(){
   // Initialise mutex lock.
   for(int i=0;i<controllers.size();i++){
     controllers[i].qlock  = new mutex();
-    controllers[i].lclock = new mutex();
+    controllers[i].lc_lock = new mutex();
     controllers[i].switch_pkt_count_lock = new mutex();
+    controllers[i].pkt_count_lock = new mutex();
     controllers[i].load_collections.resize(controllers.size());
   }
   for(int i=0;i<links.size();i++) links[i].qlock = new mutex();
@@ -76,13 +80,13 @@ int main(){
   switches[0].pkt_gen_interval =
   switches[1].pkt_gen_interval =
   switches[2].pkt_gen_interval =
-  switches[4].pkt_gen_interval = 6666;
+  switches[4].pkt_gen_interval = 5000;
 
   switches[3].pkt_gen_interval =
   switches[5].pkt_gen_interval =
   switches[6].pkt_gen_interval =
   switches[7].pkt_gen_interval =
-  switches[8].pkt_gen_interval = 6666;
+  switches[8].pkt_gen_interval = 5714;
 
 
 
@@ -91,6 +95,7 @@ int main(){
   for(int i=0;i<switches.size();i++) th_s[i] = thread(thread_switch_processing,i);
   for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
 
+  sleep(1); // Let all threads start.
 
   // Initial routing_table_info
   printf("-----------------------------------------\n");
@@ -142,13 +147,38 @@ int main(){
 
 
   // Wait untill get termiate.
-  while(!terminate_main_thread) usleep(10000);
+  // Take input control from another termial.
+  /*
+  bool control_terminal = true;
+  int fd = open("/dev/pts/17", O_RDWR);
+  char *output = (char*)malloc(sizeof(char)*1000);
+  
+  if(fd == -1){
+    printf("Termianl doesn't exists\n");
+    control_terminal = false;
+  }
+
+  
+  if(control_terminal){
+    memset(output,0,1000);
+    strcpy(output,"change the load using command \"load(switchid,new_load)\"\n");
+    write(fd,output,strlen(output));
+    dup2(fd,1);
+
+  }
+  */
+
+  while(!terminate_main_thread){
+    //if(control_terminal) start_control();
+    usleep(1000);
+  }
   throughput_statistic();
   return 0;
 }
 
 
 void start_control(){
+  
 
 }
 
@@ -330,8 +360,4 @@ void topology_builder(string filename){
       switches[sid].my_dvt.row.push_back(dv);
     }
   }
-
-
-
-
 }
