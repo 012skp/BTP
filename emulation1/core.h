@@ -83,7 +83,9 @@ struct Controller{
   int load_informed = 0;
   int base_threshold = 800;                   // 600 packets per second
   int allowed_load_deviation = 0.1*base_threshold;
+
   int current_threshold = base_threshold;
+  mutex *current_threshold_lock = NULL;
   bool load_migration_in_process = false;
   struct timeval load_migrated_time;          // waiting time after load migration = 1 second.
 

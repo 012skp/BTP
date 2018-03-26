@@ -17,6 +17,7 @@
 void packet_drop_statistic(map<double,int> &pdtc);
 void throughput_statistic();
 void topology_builder(string);
+void start_control();
 
 bool terminate_main_thread = false;
 bool LB_RUNNING = true;
@@ -80,13 +81,13 @@ int main(){
   switches[0].pkt_gen_interval =
   switches[1].pkt_gen_interval =
   switches[2].pkt_gen_interval =
-  switches[4].pkt_gen_interval = 5000;
+  switches[4].pkt_gen_interval = 1000000/175; 
 
-  switches[3].pkt_gen_interval =
+  switches[3].pkt_gen_interval = 1000000/1;  
   switches[5].pkt_gen_interval =
   switches[6].pkt_gen_interval =
   switches[7].pkt_gen_interval =
-  switches[8].pkt_gen_interval = 5714;
+  switches[8].pkt_gen_interval = 1000000/175; 
 
 
 
@@ -147,29 +148,9 @@ int main(){
 
 
   // Wait untill get termiate.
-  // Take input control from another termial.
-  /*
-  bool control_terminal = true;
-  int fd = open("/dev/pts/17", O_RDWR);
-  char *output = (char*)malloc(sizeof(char)*1000);
-  
-  if(fd == -1){
-    printf("Termianl doesn't exists\n");
-    control_terminal = false;
-  }
-
-  
-  if(control_terminal){
-    memset(output,0,1000);
-    strcpy(output,"change the load using command \"load(switchid,new_load)\"\n");
-    write(fd,output,strlen(output));
-    dup2(fd,1);
-
-  }
-  */
 
   while(!terminate_main_thread){
-    //if(control_terminal) start_control();
+    start_control();
     usleep(1000);
   }
   throughput_statistic();
@@ -178,8 +159,11 @@ int main(){
 
 
 void start_control(){
-  
-
+    int cid,load;
+    scanf("%d %d",&cid,&load);
+    switches[cid].pkt_gen_interval_lock->lock();
+    switches[cid].pkt_gen_interval = 1000000/load;
+    switches[cid].pkt_gen_interval_lock->unlock();
 }
 
 void throughput_statistic(){

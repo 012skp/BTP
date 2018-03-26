@@ -68,7 +68,7 @@ void thread_controller_load_balancing(int controllerid){
       #ifdef PRINT
       printf("C[%d] time:%lf => current_load = %d\n",controllerid, current_time(),myc.current_load*10);
       #endif
-      
+
       fprintf(fp,"%lf %d\n",current_time(),myc.current_load*10);
       usleep(100000); // period 100 milli second.
 
@@ -119,7 +119,7 @@ void controller_load_balancing_decision_maker(int controllerid){
         if(i == controllerid) continue;
         if(myc.current_load <= myc.load_collections[i]){
           lc_lock->unlock();
-          goto adjust_threshold;   // is not heaviest loaded controller don't do anything
+          return ;           // If not heaviest no job.
         }
       }
       lc_lock->unlock();
@@ -237,7 +237,7 @@ void controller_load_balancing_decision_maker(int controllerid){
             else {
               // Broadcast NEW_THRESHOLD...
               #ifdef PRINT_CONTROL
-              printf("C[%d] couldn't balance load broadcasting new threshold\n",controllerid);
+              printf("C[%d] couldn't balance load, broadcasting new threshold\n",controllerid);
               #endif
 
               Packet  p;
@@ -261,50 +261,54 @@ void controller_load_balancing_decision_maker(int controllerid){
                 links[myc.linkid].q.push(p);
               }
               lqlock->unlock();
-
-              goto adjust_threshold;
+              myc.current_threshold = myc.current_load;
             }
 
       }
-      adjust_threshold:
-        if(myc.current_load > myc.base_threshold){
-          bool  heaviest_loaded = true;
-          int heaviest_load = myc.current_load;
-          for(int i=0;i<myc.load_collections.size();i++){
-            if(myc.load_collections[i] > heaviest_load){
-              heaviest_loaded = false;
-              break;
-            }
+      
+      if(myc.current_load > myc.base_threshold){
+        bool  heaviest_loaded = true;
+
+        mutex *lc_lock = myc.lc_lock;
+        lc_lock->lock();
+        int heaviest_load = myc.current_load;
+        for(int i=0;i<myc.load_collections.size();i++){
+          if(i==controllerid) continue;
+          if(myc.load_collections[i] > heaviest_load){
+            heaviest_loaded = false;
+            break;
           }
-
-          // If heaviest_loaded check load_gap.
-          if(heaviest_loaded && myc.current_load-heaviest_load > myc.max_load_gap){
-            // Do load adjustment.
-            myc.current_threshold = heaviest_load;
-            // Broadcast NEW_THRESHOLD equal to heaviest_load.
-            Packet  p;
-            p.src = "c" + to_string(controllerid);
-            p.type = CONTROL;
-            p.subtype = NEW_THRESHOLD;
-            broadcast_data *bd = (broadcast_data*)malloc(sizeof(broadcast_data));
-            // Set current_load or heaviest_load as new_threshold.
-            bd->data = new int(myc.current_load);
-            bd->counter = controllers.size()-1;
-            p.data = (void*)bd;
-            // make sure to free the memory when counter reaches 0.
-
-            mutex *lqlock = links[myc.linkid].qlock;
-            lqlock->lock();
-            for(int i=0;i<controllers.size();i++){
-              if(i == controllerid) continue;
-              p.dst = "c" + to_string(i);
-              gettimeofday(&p.start_time,NULL);
-              links[myc.linkid].q.push(p);
-            }
-            lqlock->unlock();
-          }
-
         }
+        lc_lock->unlock();
+
+        // If heaviest_loaded check load_gap.
+        if(heaviest_loaded && myc.current_threshold-heaviest_load > myc.max_load_gap){
+          // Do load adjustment.
+          myc.current_threshold = heaviest_load;
+          // Broadcast NEW_THRESHOLD equal to heaviest_load.
+          Packet  p;
+          p.src = "c" + to_string(controllerid);
+          p.type = CONTROL;
+          p.subtype = NEW_THRESHOLD;
+          broadcast_data *bd = (broadcast_data*)malloc(sizeof(broadcast_data));
+          // Set current_load or heaviest_load as new_threshold.
+          bd->data = new int(myc.current_load);
+          bd->counter = controllers.size()-1;
+          p.data = (void*)bd;
+          // make sure to free the memory when counter reaches 0.
+
+          mutex *lqlock = links[myc.linkid].qlock;
+          lqlock->lock();
+          for(int i=0;i<controllers.size();i++){
+            if(i == controllerid) continue;
+            p.dst = "c" + to_string(i);
+            gettimeofday(&p.start_time,NULL);
+            links[myc.linkid].q.push(p);
+          }
+          lqlock->unlock();
+        }
+
+      }
 
 
 }
@@ -406,8 +410,13 @@ void thread_controller_processing(int controllerid){
 
           // Handle NEW_THRESHOLD
           else if(p.subtype == NEW_THRESHOLD){
-            // Retrive new_th value.
+            // Retrive new_threshold value.
             int new_th = *(((broadcast_data*)p.data)->data);
+
+            #ifdef PRINT_CONTROL
+            printf("C[%d] time:%lf => New threshold received %d\n",controllerid,current_time(),new_th);
+            #endif
+
             // Decrement the counter.
             ((broadcast_data*)p.data)->counter--;
             int counter = ((broadcast_data*)p.data)->counter;
