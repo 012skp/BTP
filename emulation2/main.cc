@@ -4,9 +4,9 @@
 #define PRINT_CONTROL
 
 #include "core.h"
-//#include "controller.cc"
-//#include "link.cc"
-//#include "switch.cc"
+#include "controller.cc"
+#include "link.cc"
+#include "switch.cc"
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -19,7 +19,6 @@ void throughput_statistic();
 void topology_builder(string);
 void start_control();
 
-bool terminate_main_thread = false;
 bool LB_RUNNING = true;
 bool PG_RUNNING = true;
 
@@ -37,7 +36,8 @@ void sig_handler(int sig){
   if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i].join();
   for(int i=0;i<links.size();i++) th_l[i].join();
 
-  terminate_main_thread = true;
+  throughput_statistic();
+  exit(0);
 }
 
 
@@ -48,7 +48,7 @@ int main(){
   srand((int)time(NULL));
 
   topology_builder("topology1");
-  return 0;
+
 
   // Initialise mutex lock.
   for(int i=0;i<controllers.size();i++){
@@ -93,17 +93,19 @@ int main(){
 
 
   // Start thread except packet_generator and load_balancer.
-  //for(int i=0;i<controllers.size();i++) th_c[i] = thread(thread_controller_processing,i);
-  //for(int i=0;i<switches.size();i++) th_s[i] = thread(thread_switch_processing,i);
-  //for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
+  for(int i=0;i<controllers.size();i++) th_c[i] = thread(thread_controller_processing,i);
+  for(int i=0;i<switches.size();i++) th_s[i] = thread(thread_switch_processing,i);
+  for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
 
   sleep(0); // Let all threads start.
 
   // Initial routing_table_info
   printf("-----------------------------------------\n");
   for(int i=0;i<switches.size();i++){
-    routing_table_info(i);
-    //dvt_info(i);
+    dvt_info("s"+to_string(i));
+  }
+  for(int i=0;i<controllers.size();i++){
+    dvt_info("c"+to_string(i));
   }
   printf("-----------------------------------------\n");
 
@@ -115,13 +117,19 @@ int main(){
   p.data = (void*)&switches[0].my_dvt;
   links[2].q.push(p);
   links[7].q.push(p);
+  links[0].q.push(p);
 
   // Let route computation finish.
   // Wait for it.
   sleep(2);
   printf("Final routing table at %lf.\n",current_time());
   printf("-----------------------------------------\n");
-  for(int i=0;i<switches.size();i++) dvt_info(i);
+  for(int i=0;i<switches.size();i++){
+    dvt_info("s"+to_string(i));
+  }
+  for(int i=0;i<controllers.size();i++){
+    dvt_info("c"+to_string(i));
+  }
   printf("-----------------------------------------\n");
 
 
@@ -144,17 +152,15 @@ int main(){
 
 
   // Start load_balancer and packet_generator threads.
-  //if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
-  //if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
+  if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
+  if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
 
 
   // Wait untill get termiate.
 
-  while(!terminate_main_thread){
+  while(1){
     start_control();
-    usleep(1000);
   }
-  throughput_statistic();
   return 0;
 }
 
@@ -393,9 +399,5 @@ void topology_builder(string filename){
 
 
   }
-
-
-
-
 
 }

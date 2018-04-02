@@ -37,6 +37,8 @@ void thread_controller_load_balancing(int controllerid){
       myc.pkt_count = 0;
       myc.pkt_count_lock->unlock();
 
+      //printf("C[%d] time:%lf => load = %d\n",controllerid,current_time(),myc.current_load);
+
       // Copy switches' load from switch_pkt_count
       // and reset the switch_pkt_count. Load_balancer
       // will use switch_load data to find the switch 
@@ -69,7 +71,7 @@ void thread_controller_load_balancing(int controllerid){
       printf("C[%d] time:%lf => current_load = %d\n",controllerid, current_time(),myc.current_load*10);
       #endif
 
-      fprintf(fp,"%lf %d\n",current_time(),myc.current_load*10);
+      fprintf(fp,"%lf %d\n",current_time(),myc.current_load);
       usleep(100000); // period 100 milli second.
 
 
@@ -440,7 +442,7 @@ void thread_controller_processing(int controllerid){
 
             #ifdef PRINT
             printf("Routing table updated\n");
-            routing_table_info(switchid);
+            routing_table_info("c" + to_string(controllerid));
             #endif
 
             // Broadcast new dvt.

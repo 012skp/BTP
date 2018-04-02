@@ -70,7 +70,7 @@ struct Packet{
 };
 
 
-struct CController{
+struct Controller{
   string own_name;
   int min_processing_time = 1000;             // processing_time in microsecond.
   int max_processing_time = 2000;
@@ -79,7 +79,7 @@ struct CController{
   int current_load = 0;                       // packets arriving per second.
 
   // count of pkts in per second.
-  int pkt_count;
+  int pkt_count =0;
   mutex *pkt_count_lock = NULL;
 
   int load_informed = 0;
@@ -123,60 +123,6 @@ struct CController{
 };
 
 
-struct Controller{
-  string own_name;
-  int min_processing_time;             // processing_time in microsecond.
-  int max_processing_time;
-  int avg_processing_time;             // avg processing time;
-
-  int current_load ;                       // packets arriving per second.
-
-  // count of pkts in per second.
-  int pkt_count;
-  mutex *pkt_count_lock ;
-
-  int load_informed ;
-  int base_threshold ;                   // no of packets per second
-  int allowed_load_deviation;
-
-  int current_threshold = base_threshold;
-  mutex *current_threshold_lock ;
-
-  bool load_migration_in_process;
-  struct timeval load_migrated_time;          // waiting time after load migration = 1 second.
-
-
-  queue<Packet> q;                            // packets in queue to be processed
-  mutex *qlock;
-  int max_queue_size;
-
-  map<string,int> switch_pkt_count;           // count of packets in queue by different switches
-  mutex *switch_pkt_count_lock;
-
-  map<string,int> switch_load;
-
-  vector<int> load_collections;               // load information of other controllers.
-  mutex *lc_lock;
-
-  double alpha;                               // LB if lowest_load < alpha*current_threshold
-  int max_load_gap;                           // max_load_gap allowed between CT and (heighest load > BT).
-
-
-  vector<int> connected_links;
-
-  map<string,int> forwarding_table;             // map of (dst,linkid)
-
-  
-
-  dist_vector_table my_dvt;
-  mutex *my_dvt_lock;
-
-  map<string,int> dvt_version;
-  // Stores the current read dvt_version of all nodes.
- 
-
-  bool terminate;
-};
 
 
 
@@ -301,16 +247,23 @@ double current_time(){
 }
 
 
-void routing_table_info(int switchid){
-  printf("Forwading Table of switch %s\n",switches[switchid].own_name.c_str());
-  for(auto itr : switches[switchid].forwarding_table){
-    printf("%s->l%d\n",itr.first.c_str(),itr.second);
-  }
+void dvt_info(string);
+
+void routing_table_info(string src){
+  dvt_info(src);
+  return ;
+  printf("Forwading Table of  %s\n",src.c_str());
+  map<string,int> rt;
+  if(src[0] == 'c') rt = controllers[getid(src)].forwarding_table;
+  else rt = controllers[getid(src)].forwarding_table;
+  
 }
 
-void dvt_info(int switchid){
-  dist_vector_table &dvt = switches[switchid].my_dvt;
-  printf("Distance Vector Table for switch %s\n",dvt.src.c_str());
+void dvt_info(string src){
+  dist_vector_table dvt;
+  if(src[0] == 's') dvt = switches[getid(src)].my_dvt;
+  else dvt = controllers[getid(src)].my_dvt;
+  printf("Distance Vector Table for %s\n",src.c_str());
   for(int i=0;i<dvt.row.size();i++){
     dist_vector &dv = dvt.row[i];
     printf("dst = %s, linkid = %d, hop_count = %d\n",dv.dst.c_str(),dv.linkid,dv.hop_count);

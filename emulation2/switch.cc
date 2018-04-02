@@ -113,7 +113,7 @@ void thread_switch_processing(int switchid){
 
             #ifdef PRINT
             printf("Routing table updated\n");
-            routing_table_info(switchid);
+            routing_table_info("s"+to_string(switchid));
             #endif
 
             // Broadcast new dvt.
@@ -149,9 +149,7 @@ void thread_switch_processing(int switchid){
           my_dvt_lock->unlock();
         }
 
-        //printf("S[%d] waiting to get myqlock\n",switchid);
         myqlock->lock();
-        //printf("S[%d] got the myqlock\n",switchid);
         myq.pop();
         myqlock->unlock();
         continue;
@@ -294,7 +292,8 @@ void thread_switch_pkt_generator(int switchid){
     mys.qlock->unlock();
 
     mys.pkt_gen_interval_lock->lock();
-    usleep(mys.pkt_gen_interval);
+    int pgi = mys.pkt_gen_interval;
     mys.pkt_gen_interval_lock->unlock();
+    usleep(pgi);
   }
 }
