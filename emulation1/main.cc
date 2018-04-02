@@ -86,7 +86,7 @@ int main(){
   switches[3].pkt_gen_interval = 1000000/1;  
   switches[5].pkt_gen_interval =
   switches[6].pkt_gen_interval =
-  switches[7].pkt_gen_interval =
+  switches[7].pkt_gen_interval =  
   switches[8].pkt_gen_interval = 1000000/175; 
 
 
@@ -96,7 +96,7 @@ int main(){
   for(int i=0;i<switches.size();i++) th_s[i] = thread(thread_switch_processing,i);
   for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
 
-  sleep(1); // Let all threads start.
+  sleep(0); // Let all threads start.
 
   // Initial routing_table_info
   printf("-----------------------------------------\n");
