@@ -1,5 +1,5 @@
 
-//  #define PRINT
+//         #define PRINT
 #define PRINT_PKT_DROP
 #define PRINT_CONTROL
 
@@ -48,7 +48,7 @@ int main(){
   gettimeofday(&emulation_start_time,NULL);
   srand((int)time(NULL));
 
-  topology_builder("topology1");
+  topology_builder("topology2");
 
 
   // Initialise mutex lock.
@@ -83,7 +83,7 @@ int main(){
   switches[0].pkt_gen_interval =
   switches[1].pkt_gen_interval =
   switches[2].pkt_gen_interval =
-  switches[4].pkt_gen_interval = 1000000/100;
+  switches[4].pkt_gen_interval = 1000000/100; 
 
   switches[3].pkt_gen_interval = 1000000/1;  
   switches[5].pkt_gen_interval =
@@ -98,7 +98,7 @@ int main(){
   for(int i=0;i<switches.size();i++) th_s[i] = thread(thread_switch_processing,i);
   for(int i=0;i<links.size();i++) th_l[i] = thread(thread_link,i);
 
-  sleep(0); // Let all threads start.
+  sleep(1); // Let all threads start.
 
   // Initial routing_table_info
   printf("-----------------------------------------\n");
