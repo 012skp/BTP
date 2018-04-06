@@ -267,7 +267,8 @@ void thread_switch_processing(int switchid){
 }
 
 
-
+// pkt_generator follows poissions distribution 
+// with mean waiting time pkt_gen_interval.
 void thread_switch_pkt_generator(int switchid){
   printf("Switch %d Packet Generator Thread is up\n",switchid);
   Switch &mys = switches[switchid];
@@ -294,6 +295,9 @@ void thread_switch_pkt_generator(int switchid){
     mys.pkt_gen_interval_lock->lock();
     int pgi = mys.pkt_gen_interval;
     mys.pkt_gen_interval_lock->unlock();
-    usleep(pgi);
+
+    std::default_random_engine gen(time(NULL));
+    std::poisson_distribution<int> pd(pgi);
+    usleep(pd(gen));
   }
 }

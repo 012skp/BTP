@@ -1,5 +1,5 @@
 
-//         #define PRINT
+         #define PRINT
 #define PRINT_PKT_DROP
 #define PRINT_CONTROL
 
@@ -48,8 +48,7 @@ int main(){
   gettimeofday(&emulation_start_time,NULL);
   srand((int)time(NULL));
 
-  topology_builder("topology2");
-
+  topology_builder("topology3"); 
 
   // Initialise mutex lock.
   for(int i=0;i<controllers.size();i++){
@@ -116,9 +115,9 @@ int main(){
   p.type = ROUTING;
   p.src = "s0";
   p.data = (void*)&switches[0].my_dvt;
-  links[2].q.push(p);
-  links[7].q.push(p);
-  links[0].q.push(p);
+  links[72].q.push(p);
+  //links[7].q.push(p);
+  //links[0].q.push(p);
 
   // Let route computation finish.
   // Wait for it.
@@ -153,8 +152,8 @@ int main(){
 
 
   // Start load_balancer and packet_generator threads.
-  if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
-  if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
+ // if(LB_RUNNING) for(int i=0;i<controllers.size();i++) th_clb[i] = thread(thread_controller_load_balancing,i);
+  //if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i] = thread(thread_switch_pkt_generator,i);
 
 
   // Wait untill get termiate.
