@@ -145,7 +145,7 @@ void thread_link(int  linkid){
 
       }
       else {
-        usleep(0); // context switch so that other threads get chance.
+        usleep(mylink.delay); // context switch so that other threads get chance.
       }
   }
 }

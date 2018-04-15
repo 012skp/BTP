@@ -6,7 +6,6 @@
 #include<bits/stdc++.h>
 #include<sys/time.h>
 #include<unistd.h>
-#include<random>
 #include<thread>
 #include<mutex>
 using namespace std;
@@ -79,8 +78,6 @@ struct Packet{
 
 struct Controller{
   string own_name;
-  int min_processing_time = 1000;             // processing_time in microsecond.
-  int max_processing_time = 2000;
   int avg_processing_time = 1000;             // avg processing time;
 
   int current_load = 0;                       // packets arriving per second.
@@ -90,7 +87,7 @@ struct Controller{
   mutex *pkt_count_lock = NULL;
 
   int load_informed = 0;
-  int base_threshold = 800;                   // no of packets per second
+  int base_threshold = 1000;                   // no of packets per second
   int allowed_load_deviation = 0.1*base_threshold;
 
   int current_threshold = base_threshold;
@@ -177,8 +174,8 @@ struct Switch{
     to do with the packet.
   */
 
-  int pkt_gen_interval = 1000;                 //generate pkt_after every 1 milli second.
-  mutex *pkt_gen_interval_lock = NULL;
+  int pps = 100;                                //pkt_per_second 
+  mutex *pps_lock = NULL;
 
   vector<double> pkt_gen_time;
 

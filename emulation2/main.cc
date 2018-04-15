@@ -1,5 +1,5 @@
 
-//  #define PRINT
+    //#define PRINT
 #define PRINT_PKT_DROP
 #define PRINT_CONTROL
 
@@ -20,11 +20,13 @@ void throughput_statistic();
 void topology_builder(string);
 void start_control();
 
+bool terminate_main_thread = false;
 bool LB_RUNNING = true;
 bool PG_RUNNING = true;
 
 // When SIGINT signal received, terminate all threads.
 void sig_handler(int sig){
+  LB_RUNNING = PG_RUNNING = false;
   // Set every element terminate to true.
   for(int i=0;i<controllers.size();i++) controllers[i].terminate = true;
   for(int i=0;i<switches.size();i++) switches[i].terminate = true;
@@ -37,18 +39,19 @@ void sig_handler(int sig){
   if(PG_RUNNING) for(int i=0;i<switches.size();i++) th_spg[i].join();
   for(int i=0;i<links.size();i++) th_l[i].join();
 
-  throughput_statistic();
-  exit(0);
+  printf("All thread successfully terminated\n");
+  terminate_main_thread = true;
 }
 
 
 int main(){
+  LB_RUNNING = PG_RUNNING = false;
   // Register to receive SIGINT.
   signal(SIGINT, sig_handler);
   gettimeofday(&emulation_start_time,NULL);
   srand((int)time(NULL));
 
-  topology_builder("topology1");
+  topology_builder("topology3");
 
 
   // Initialise mutex lock.
@@ -89,7 +92,7 @@ int main(){
   switches[5].pkt_gen_interval =
   switches[6].pkt_gen_interval =
   switches[7].pkt_gen_interval =  
-  switches[8].pkt_gen_interval = 1000000/175; 
+  switches[8].pkt_gen_interval = 1000000/100; 
 
 
 
@@ -116,9 +119,10 @@ int main(){
   p.type = ROUTING;
   p.src = "s0";
   p.data = (void*)&switches[0].my_dvt;
-  links[2].q.push(p);
-  links[7].q.push(p);
-  links[0].q.push(p);
+  gettimeofday(&p.start_time,NULL);
+  links[72].qlock->lock();
+  links[72].q.push(p);
+  links[72].qlock->unlock();
 
   // Let route computation finish.
   // Wait for it.
@@ -133,6 +137,31 @@ int main(){
   }
   printf("-----------------------------------------\n");
 
+
+
+
+  // Chekcking routing table.
+  int nodes = controllers.size()+switches.size();
+  int routing_table_size = nodes-1;
+  bool flag = true;
+  for(int i=0;i<switches.size();i++){
+    if(switches[i].forwarding_table.size() != routing_table_size){
+      printf("S[%d] routting table incorrect\n",i);
+      flag = false;
+    }
+  }
+  for(int i=0;i<controllers.size();i++){
+    if(controllers[i].forwarding_table.size() != routing_table_size){
+      printf("C[%d] routing table incorrect\n",i);
+      flag = false;
+    }
+  }
+
+  if(flag) printf("Routing table successfully computed\n");
+  else {
+    printf("Routing table incorrect\n");
+    exit(0);
+  }
 
 
   // Testing with single packet.
@@ -159,9 +188,12 @@ int main(){
 
   // Wait untill get termiate.
 
-  while(1){
-    start_control();
+  while(!terminate_main_thread == true){
+    sleep(1);
+    //start_control();
   }
+
+  throughput_statistic();
   return 0;
 }
 
@@ -175,6 +207,7 @@ void start_control(){
 }
 
 void throughput_statistic(){
+  printf("GOing for tP throughput_statistic\n");
   // Records packet_generation_time for all switches.
   vector<double> pgt;
   for(int i=0;i<switches.size();i++){

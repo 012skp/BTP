@@ -446,7 +446,7 @@ void thread_controller_processing(int controllerid){
             #endif
 
             // Broadcast new dvt.
-
+            /*
             myc.my_dvt.version++;
             Packet np;
             np.src = myc.own_name;
@@ -466,7 +466,7 @@ void thread_controller_processing(int controllerid){
               links[myc.connected_links[i]].qlock->unlock();
 
             }
-
+            */
           }
 
 

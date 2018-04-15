@@ -176,7 +176,7 @@ struct Switch{
     to do with the packet.
   */
 
-  int pkt_gen_interval = 1000;                 //generate pkt_after every 1 milli second.
+  int pkt_gen_interval = 1000000/100;                 //generate pkt_after every 1 milli second.
   mutex *pkt_gen_interval_lock = NULL;
 
   vector<double> pkt_gen_time;

@@ -46,7 +46,7 @@ void thread_controller_load_balancing(int controllerid){
       myc.switch_pkt_count_lock->lock();
       auto itr = myc.switch_pkt_count.begin();
       while(itr!=myc.switch_pkt_count.end()){
-        myc.switch_load[itr->first] = (itr->second)*10;
+        myc.switch_load[itr->first] = itr->second;
         itr->second = 0;
         itr++;
       }
@@ -117,160 +117,154 @@ void controller_load_informating(int controllerid){
 
 
 void controller_load_balancing_decision_maker(int controllerid){
-    if(controllers.size() == 1) return;
-    Controller &myc = controllers[controllerid];
+  if(controllers.size() == 1) return;
+  Controller &myc = controllers[controllerid];
 
-    // Get load_collections lock before reading it.
-    // Because it may be updated my thread_controller_processing.
-    mutex *lc_lock = myc.lc_lock;
-    lc_lock->lock();
-    for(int i=0;i<myc.load_collections.size();i++){
+      // Get load_collections lock before reading it.
+      // Because it may be updated my thread_controller_processing.
+      mutex *lc_lock = myc.lc_lock;
+      lc_lock->lock();
+      for(int i=0;i<myc.load_collections.size();i++){
         if(i == controllerid) continue;
         if(myc.current_load <= myc.load_collections[i]){
+          lc_lock->unlock();
+          return ;           // If not heaviest no job.
+        }
+      }
+      lc_lock->unlock();
+
+
+      // This is the heaviest loaded controller do load_balancing.
+      if(myc.current_load > myc.current_threshold){
+            #ifdef PRINT_CONTROL
+            printf("C[%d] time:%lf => current_load = %d, current_threshold = %d\n",
+                            controllerid, current_time(),myc.current_load,
+                            myc.current_threshold);
+            #endif
+
+            // Search for lightest loaded controller.
+            int lowest_cid = -1;    // lowest loaded controllerid.
+            int lowest_load = myc.current_load;
+
+            lc_lock->lock();
+            for(int i=0;i<myc.load_collections.size();i++){
+              if(i == controllerid) continue;
+              if(myc.load_collections[i] < lowest_load){
+                lowest_load = myc.load_collections[i];
+                lowest_cid = i;
+              }
+            }
             lc_lock->unlock();
-            return ;           // If not heaviest no job.
-        }
-    }
-    lc_lock->unlock();
+            assert(lowest_cid != -1);
 
 
-    // This is the heaviest loaded controller do load_balancing.
-    if(myc.current_load > myc.current_threshold){
-        #ifdef PRINT_CONTROL
-        printf("C[%d] time:%lf => current_load = %d, current_threshold = %d\n",
-                        controllerid, current_time(),myc.current_load,
-                        myc.current_threshold);
-        #endif
-
-        // lightly loaded controller_id
-        map<int,int> low_load_controllers;
-        lc_lock->lock();
-        for(int i=0;i<myc.load_collections.size();i++){
-            if(i == controllerid) continue;
-            if(myc.load_collections[i] < myc.alpha*myc.current_threshold){
-                low_load_controllers[i] = myc.load_collections[i];
-            }
-        }
-        lc_lock->unlock();
-        
-
-        bool new_load_th_required = false;
-        // If there exists a lightly loaded controller.
-        if(low_load_controllers.size()){
-            // Search for switch that satisfies
-            // Switch's_load < (heaviest_load - low_load_controller's_load)/2 -----(1)
+            // If there exists enough gap between current_threshold and lowest_load.
+            if(lowest_load <= myc.alpha*myc.current_threshold){
+              // Search for switch that satisfies
+              // load < (heaviest_load-lowest_load)/2 -----(1)
+              int desired_switch_load = (myc.current_load-lowest_load)/2;
 
 
-            // This mapping is < <RTT,Load>,<switchid,controller> >
-            // Where RTT is hopcount from from switch to controller
-            // Load is load of switch
-            vector<pair<pair<int,int>,pair<int,int> > > mapping; // switch controller mapping.
+              
+              // Iterate through switch's load and find the desired switch.
+              auto itr = myc.switch_load.begin();
+              string the_switch = "";
+              int load = -1;
 
-
-            // Iterate through switch's load and complete the mapping.
-            auto itrs = myc.switch_load.begin();
-
-            printf("Mapping is\n");
-            while(itrs != myc.switch_load.end()){
-                int sl = itrs->second;                        // switch load
-                if(sl == 0){itrs++; continue;}
-                int sid = getid(itrs->first);
-                auto itrc = low_load_controllers.begin();
-                while(itrc != low_load_controllers.end()){
-                    int target_cl = itrc->second;                // target controller's load
-                    int cid = itrc->first; 
-                    if(sl <= (myc.current_threshold-target_cl)){
-                        // This is an eligible switch-controller pair for migration.
-                        // Get Hopcount from switch to controller;
-                        int hc = get_hop_count("s"+to_string(sid), "c"+to_string(cid));
-                        assert(hc != -1);
-                        mapping.push_back(mp(mp(hc,sl),mp(sid,cid)));
-                        printf("hc=%d,load=%d,sid=%d,cid=%d\n",hc,sl,sid,cid);
-
-                    }
-                    itrc++;
+              // try to find first switch that satisfies (1)
+              while(itr != myc.switch_load.end()){
+                if(itr->second <= desired_switch_load){
+                  the_switch = itr->first;
+                  load = itr->second;
+                  break;
                 }
-                itrs++;
-            }
+                itr++;
+              }
 
-
-
-            // If couldn't find desired switch retun.
-            if(mapping.size()==0){
+              // If couldn't find desired switch retun.
+              if(load == -1){
                 #ifdef PRINT_CONTROL
                 printf("C[%d] time:%lf => couldn't find desired switch\n",controllerid,current_time());
                 #endif
-                new_load_th_required = true;
-            }
-            else{
-                // Do load migration.
-                sort(mapping.begin(),mapping.end());
-                int lowest_hop_count = mapping[0].first.first;
-                int idx = 0;
-                while(mapping[idx].first.first == lowest_hop_count) idx++;
-                idx--;
 
-                int sid_selected = mapping[idx].second.first;
-                int cid_selected = mapping[idx].second.second;
+                return;
+              }
 
-                // Do switch migration. Send CONTROL Packet with LOAD_MIGRATION subtype
+              itr++;
 
+              // Now try to find switch with heighest load satifying (1).
+              while(itr != myc.switch_load.end()){
+                if( itr->second <= desired_switch_load && itr->second > load){
+                      load = itr->second;
+                      the_switch = itr->first;
+                }
+                itr++;
+              }
+
+
+              if(load == 0){
                 #ifdef PRINT_CONTROL
-                printf("C[%d] time:%lf => controller selected = %d, switch selected =%d\n",
-                              controllerid, current_time(),cid_selected,sid_selected);
+                printf("C[%d] time:%lf => couldn't find desired switch\n",controllerid,current_time());
                 #endif
 
-                int *sid = new int(sid_selected);
-                //  Make sure to free the memroy upon reception of packet.
-                Packet p;
-                p.src = "c" + to_string(controllerid);
-                p.dst = "c" + to_string(cid_selected);
-                p.type = CONTROL;
-                p.subtype = LOAD_MIGRATION;
-                p.data = (void*)sid;
-                gettimeofday(&p.start_time,NULL);
+                return;
+              }
 
 
-                myc.my_dvt_lock->lock();
-                int lid = myc.forwarding_table[p.dst];
-                myc.my_dvt_lock->unlock();
+              // Now we have heaviest loaded switch satisying (1).
+              // Do switch migration. Send CONTROL Packet with LOAD_MIGRATION subtype
 
-                links[lid].qlock->lock();
-                links[lid].q.push(p);
-                links[lid].qlock->unlock();
+              #ifdef PRINT_CONTROL
+              printf("C[%d] time:%lf => controller selected = %d, switch selected =%d\n",
+                              controllerid, current_time(),lowest_cid,getid(the_switch));
+              #endif
 
-                // set load_migration_in_process true;
-                myc.load_migration_in_process = true;
-                #ifdef PRINT_CONTROL
-                printf("C[%d] transferring load of switch %d to controller %d\n",
-                                              controllerid,sid_selected,cid_selected);
-                #endif
+              int *sid = new int(getid(the_switch));
+              //  Make sure to free the memroy upon reception of packet.
+              Packet p;
+              p.src = "c" + to_string(controllerid);
+              p.dst = "c" + to_string(lowest_cid);
+              p.type = CONTROL;
+              p.subtype = LOAD_MIGRATION;
+              p.data = (void*)sid;
+              gettimeofday(&p.start_time,NULL);
+
+
+              myc.my_dvt_lock->lock();
+              int lid = myc.forwarding_table[p.dst];
+              myc.my_dvt_lock->unlock();
+
+              links[lid].qlock->lock();
+              links[lid].q.push(p);
+              links[lid].qlock->unlock();
+
+              // set load_migration_in_process true;
+              myc.load_migration_in_process = true;
+              #ifdef PRINT_CONTROL
+              printf("C[%d] transferring load of switch %d to controller %d\n",
+                                              controllerid,getid(the_switch),
+                                              lowest_cid);
+              #endif
             }
+            else {
+              // Broadcast NEW_THRESHOLD...
+              #ifdef PRINT_CONTROL
+              printf("C[%d] couldn't balance load, broadcasting new threshold\n",controllerid);
+              #endif
 
-        }
+              Packet  p;
+              p.src = "c" + to_string(controllerid);
+              p.type = CONTROL;
+              p.subtype = NEW_THRESHOLD;
+              broadcast_data *bd = (broadcast_data*)malloc(sizeof(broadcast_data));
+              // Set current_load as new_threshold.
+              bd->data = new int(myc.current_load);
+              bd->counter = controllers.size()-1;
+              p.data = (void*)bd;
 
-        else new_load_th_required = true;
-        
+              // make sure to free the memory when counter reaches 0.
 
-        if(new_load_th_required){
-            // Broadcast NEW_THRESHOLD...
-            #ifdef PRINT_CONTROL
-            printf("C[%d] couldn't balance load, broadcasting new threshold\n",controllerid);
-            #endif
-
-            Packet  p;
-            p.src = "c" + to_string(controllerid);
-            p.type = CONTROL;
-            p.subtype = NEW_THRESHOLD;
-            broadcast_data *bd = (broadcast_data*)malloc(sizeof(broadcast_data));
-            // Set current_load as new_threshold.
-            bd->data = new int(myc.current_load);
-            bd->counter = controllers.size()-1;
-            p.data = (void*)bd;
-
-            // make sure to free the memory when counter reaches 0.
-
-            for(int i=0;i<controllers.size();i++){
+              for(int i=0;i<controllers.size();i++){
                 if(i == controllerid) continue;
                 p.dst = "c" + to_string(i);
                 gettimeofday(&p.start_time,NULL);
@@ -283,10 +277,10 @@ void controller_load_balancing_decision_maker(int controllerid){
                 links[lid].q.push(p);
                 links[lid].qlock->unlock();
 
+              }
+              
+              myc.current_threshold = myc.current_load;
             }
-
-            myc.current_threshold = myc.current_load;
-        }
 
       }
       
@@ -375,38 +369,39 @@ void thread_controller_processing(int controllerid){
       #endif
 
 
-      // If this is ROUTING packet.
+            // If this is ROUTING packet.
       if(p.type == ROUTING){
         // received_dist_vector_table.
 
-        // Lock both r_dvt and my_dvt,
-        // otherwise may fall into deadlock.
         mutex *r_dvt_lock =NULL;
         if(p.src[0] == 's') r_dvt_lock = switches[getid(p.src)].my_dvt_lock;
         else r_dvt_lock = controllers[getid(p.src)].my_dvt_lock;
-        mutex *my_dvt_lock = myc.my_dvt_lock;
 
+
+       
+        assert(p.data);
+
+        // lock before u read
+        r_dvt_lock->lock();
+        dist_vector_table r_dvt = *(dist_vector_table*)p.data;
+        r_dvt_lock->unlock();
+
+        mutex *my_dvt_lock = myc.my_dvt_lock;
+        my_dvt_lock->lock();
         bool already_unlocked = false;
 
 
-        //printf("S[%d] waiting to get my_dvt_lock & my_dvt_lock[%d] lock\n",switchid,getid(p.dst));
-        r_dvt_lock->lock();
-        my_dvt_lock->lock();
-        //printf("S[%d] got the both lock\n",switchid);
 
 
-        // TODO Improvement copy r_dvt and update instead of locking.
-        dist_vector_table *r_dvt = (dist_vector_table*)p.data;
-        assert(r_dvt);
 
         // If this version of dist_vector_table already updated ignore it.
-        if(myc.dvt_version[p.src] >= r_dvt->version); // ignore
+        if(myc.dvt_version[p.src] >= r_dvt.version); // ignore
         else{
           // Compare and update my_dvt using this received dvt.
           bool updated = false;
-          for(int i=0; i<r_dvt->row.size(); i++){
+          for(int i=0; i<r_dvt.row.size(); i++){
             // row is tuple containing {dst,hop_count,linkid}
-            dist_vector &r_dv = r_dvt->row[i];
+            dist_vector &r_dv = r_dvt.row[i];
             string dst = r_dv.dst;
             if(dst == myc.own_name) continue;
 
@@ -448,39 +443,35 @@ void thread_controller_processing(int controllerid){
 
             #ifdef PRINT
             printf("Routing table updated\n");
-            routing_table_info("c" + to_string(controllerid));
+            routing_table_info("s"+to_string(controllerid));
             #endif
 
-
-            /*
-            
             // Broadcast new dvt.
-
-            myc.my_dvt.version++;
+            /*
+            mys.my_dvt.version++;
             Packet np;
-            np.src = myc.own_name;
+            np.src = mys.own_name;
             np.dst = "";
             np.type = ROUTING;
-            np.data = (void*)&myc.my_dvt;
+            np.data = (void*)&mys.my_dvt;
 
-            r_dvt_lock->unlock();
             my_dvt_lock->unlock();
             already_unlocked = true;
 
-            for(int i=0;i<myc.connected_links.size();i++){
+            for(int i=0;i<mys.connected_links.size();i++){
               gettimeofday(&np.start_time,NULL);
 
-              links[myc.connected_links[i]].qlock->lock();
-              links[myc.connected_links[i]].q.push(np);
-              links[myc.connected_links[i]].qlock->unlock();
+              links[mys.connected_links[i]].qlock->lock();
+              links[mys.connected_links[i]].q.push(np);
+              links[mys.connected_links[i]].qlock->unlock();
 
             }
-
             */
 
           }
 
-          
+
+
         }
 
         if(!already_unlocked){
@@ -493,6 +484,7 @@ void thread_controller_processing(int controllerid){
         myqlock->unlock();
         continue;
       }
+
 
       else if(p.type == PACKET_IN){
           // processing_time = random(min_processing_time,max_processig_time).
@@ -603,12 +595,10 @@ void thread_controller_processing(int controllerid){
 
           else printf("Unknown pkt_subtype %s under CONTROL at c%d\n",SUBTYPE(p.subtype).c_str(),controllerid);
       }
-      //else if(p.type == NORMAL)
-      else{
-        printf("Unknown pkt_type %s at c%d, src = %s, dst = %s\n",TYPE(p.type).c_str(),controllerid,
-                                              p.src.c_str(),p.dst.c_str());
+      else printf("Unknown pkt_type %s at c%d\n",TYPE(p.type).c_str(),controllerid);
 
-      }
+      mutex *switch_pkt_count_lock = myc.switch_pkt_count_lock;
+
       myqlock->lock();
       myq.pop();
       myqlock->unlock();
