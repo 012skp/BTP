@@ -78,8 +78,6 @@ struct Packet{
 
 struct Controller{
   string own_name;
-  int min_processing_time = 1000;             // processing_time in microsecond.
-  int max_processing_time = 2000;
   int avg_processing_time = 1000;             // avg processing time;
 
   int current_load = 0;                       // packets arriving per second.
@@ -89,30 +87,30 @@ struct Controller{
   mutex *pkt_count_lock = NULL;
 
   int load_informed = 0;
-  int base_threshold = 800;                   // no of packets per second
+  int base_threshold = 1000;                   // no of packets per second
   int allowed_load_deviation = 0.1*base_threshold;
 
-  int current_threshold = base_threshold;
-  mutex *current_threshold_lock = NULL;
+  double alpha = 1;                            // current threshold = alpha*base threshold
+
 
   bool load_migration_in_process = false;
-  struct timeval load_migrated_time;          // waiting time after load migration = 1 second.
+  struct timeval load_migrated_time;           // waiting time after load migration = 1 second.
 
 
-  queue<Packet> q;                            // packets in queue to be processed
+  queue<Packet> q;                             // packets in queue to be processed
   mutex *qlock = NULL;
-  int max_queue_size = 500;
+  int max_queue_size = 5000;
 
-  map<string,int> switch_pkt_count;           // count of packets in queue by different switches
+  map<string,int> switch_pkt_count;            // count of packets in queue by different switches
   mutex *switch_pkt_count_lock = NULL;
 
   map<string,int> switch_load;
 
-  vector<int> load_collections;               // load information of other controllers.
+  vector<int> load_collections;                // load information of other controllers.
   mutex *lc_lock = NULL;
 
-  double alpha = 0.70;                        // LB if lowest_load < alpha*current_threshold
-  int max_load_gap = 0.20*base_threshold;     // max_load_gap allowed between CT and (heighest load > BT).
+  double gama = 0.70;                          // LB if lowest_load < alpha*current_threshold
+  int max_load_gap = 0.20*base_threshold;      // max_load_gap allowed between CT and (heighest load > BT).
 
 
   vector<int> connected_links;
@@ -176,8 +174,8 @@ struct Switch{
     to do with the packet.
   */
 
-  int pkt_gen_interval = 1000T000/100;                 //generate pkt_after every 1 milli second.
-  mutex *pkt_gen_interval_lock = NULL;
+  int pps = 300;                                //pkt_per_second 
+  mutex *pps_lock = NULL;
 
   vector<double> pkt_gen_time;
 
@@ -199,7 +197,7 @@ vector<thread> th_spg;
 
 
 struct broadcast_data{
-  int *data;
+  void* data;
   int counter;
 };
 

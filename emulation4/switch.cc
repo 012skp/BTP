@@ -32,7 +32,7 @@ void thread_switch_processing(int switchid){
       Packet fp = p;
 
       #ifdef PRINT_CONTROL
-      if(fp.type == CONTROL) {
+      if(fp.type == CONTROL && fp.subtype != LOAD_BROADCAST) {
         printf("S[%d] time:%lf => packetid = %lld, src = %s, dst = %s, type = %s, subtype %s\n",
                   switchid,current_time(),
                   myq.front().packetid,myq.front().src.c_str(),myq.front().dst.c_str(),
@@ -44,34 +44,35 @@ void thread_switch_processing(int switchid){
       if(p.type == ROUTING){
         // received_dist_vector_table.
 
-        // Lock both r_dvt and my_dvt,
-        // otherwise may fall into deadlock.
-        mutex *r_dvt_lock = NULL;
+        mutex *r_dvt_lock =NULL;
         if(p.src[0] == 's') r_dvt_lock = switches[getid(p.src)].my_dvt_lock;
         else r_dvt_lock = controllers[getid(p.src)].my_dvt_lock;
-        mutex *my_dvt_lock = mys.my_dvt_lock;
 
+
+       
+        assert(p.data);
+
+        // lock before u read
+        r_dvt_lock->lock();
+        dist_vector_table r_dvt = *(dist_vector_table*)p.data;
+        r_dvt_lock->unlock();
+
+        mutex *my_dvt_lock = mys.my_dvt_lock;
+        my_dvt_lock->lock();
         bool already_unlocked = false;
 
 
-        //printf("S[%d] waiting to get my_dvt_lock & my_dvt_lock[%d] lock\n",switchid,getid(p.dst));
-        r_dvt_lock->lock();
-        my_dvt_lock->lock();
-        //printf("S[%d] got the both lock\n",switchid);
 
 
-        // TODO Improvement copy r_dvt and update instead of locking.
-        dist_vector_table *r_dvt = (dist_vector_table*)p.data;
-        assert(r_dvt);
 
         // If this version of dist_vector_table already updated ignore it.
-        if(mys.dvt_version[p.src] >= r_dvt->version); // ignore
+        if(mys.dvt_version[p.src] >= r_dvt.version); // ignore
         else{
           // Compare and update my_dvt using this received dvt.
           bool updated = false;
-          for(int i=0; i<r_dvt->row.size(); i++){
+          for(int i=0; i<r_dvt.row.size(); i++){
             // row is tuple containing {dst,hop_count,linkid}
-            dist_vector &r_dv = r_dvt->row[i];
+            dist_vector &r_dv = r_dvt.row[i];
             string dst = r_dv.dst;
             if(dst == mys.own_name) continue;
 
@@ -125,7 +126,6 @@ void thread_switch_processing(int switchid){
             np.type = ROUTING;
             np.data = (void*)&mys.my_dvt;
 
-            r_dvt_lock->unlock();
             my_dvt_lock->unlock();
             already_unlocked = true;
 
@@ -145,7 +145,6 @@ void thread_switch_processing(int switchid){
         }
 
         if(!already_unlocked){
-          r_dvt_lock->unlock();
           my_dvt_lock->unlock();
         }
 
@@ -200,6 +199,12 @@ void thread_switch_processing(int switchid){
           links[mys.forwarding_table[np.dst]].qlock->unlock();
           printf("S[%d] time:%lf => Sending ROLE_REQ_ACK to %s\n",switchid,current_time(),
                                                     np.dst.c_str());
+        }
+        else if(p.type == PKT_DROP){
+          // Check you buffer for the packet_id and remove it.
+          if(mys.buffer.find(p.packetid) != mys.buffer.end()){
+            mys.buffer.erase(mys.buffer.find(p.packetid));
+          }
         }
         else printf("S[%d] time:%lf => Unknown Packet received packetid =%lld, src = %s\n",
                      switchid,current_time(),p.packetid,p.src.c_str());
@@ -291,9 +296,10 @@ void thread_switch_pkt_generator(int switchid){
     mys.pkt_gen_time.push_back(current_time());
     mys.qlock->unlock();
 
-    mys.pkt_gen_interval_lock->lock();
-    int pgi = mys.pkt_gen_interval;
-    mys.pkt_gen_interval_lock->unlock();
-    usleep(pgi);
+    mys.pps_lock->lock();
+    int pps = mys.pps;
+    mys.pps_lock->unlock();
+    if(pps == 0) pps  = 1;
+    usleep(1000000/pps);
   }
 }

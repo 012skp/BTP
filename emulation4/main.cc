@@ -1,7 +1,7 @@
 
-    //#define PRINT
+//#define PRINT
 #define PRINT_PKT_DROP
-#define PRINT_CONTROL
+//#define PRINT_CONTROL
 
 #include "core.h"
 #include "controller.cc"
@@ -52,7 +52,7 @@ int main(){
   gettimeofday(&emulation_start_time,NULL);
   srand((int)time(NULL));
 
-  topology_builder("topology3");
+  topology_builder("topology1");
 
 
   // Initialise mutex lock.
@@ -110,9 +110,9 @@ int main(){
   p.src = "s0";
   p.data = (void*)&switches[0].my_dvt;
   gettimeofday(&p.start_time,NULL);
-  links[72].qlock->lock();
-  links[72].q.push(p);
-  links[72].qlock->unlock();
+  links[7].qlock->lock();
+  links[7].q.push(p);
+  links[7].qlock->unlock();
 
   // Let route computation finish.
   // Wait for it.

@@ -1,5 +1,5 @@
 
-    //#define PRINT
+    #define PRINT
 #define PRINT_PKT_DROP
 #define PRINT_CONTROL
 
@@ -82,17 +82,6 @@ int main(){
 
 
 
-  // Set pkt_gen_interval for each switch.
-  switches[0].pkt_gen_interval =
-  switches[1].pkt_gen_interval =
-  switches[2].pkt_gen_interval =
-  switches[4].pkt_gen_interval = 1000000/100;
-
-  switches[3].pkt_gen_interval = 1000000/1;  
-  switches[5].pkt_gen_interval =
-  switches[6].pkt_gen_interval =
-  switches[7].pkt_gen_interval =  
-  switches[8].pkt_gen_interval = 1000000/100; 
 
 
 
